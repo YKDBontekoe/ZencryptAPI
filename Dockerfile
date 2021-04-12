@@ -7,14 +7,20 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:5.0-buster AS build
 WORKDIR /src
-COPY ["YKDResumeAPI/YKDResumeAPI.csproj", "YKDResumeAPI/"]
-RUN dotnet restore "YKDResumeAPI/YKDResumeAPI.csproj"
+COPY Solution.sln ./
+# COPY ClassLibraryProject/*.csproj ./ClassLibraryProject/
+COPY YKDResumeAPI/*.csproj ./YKDResumeAPI/
+
+RUN dotnet restore
 COPY . .
-WORKDIR "/src/YKDResumeAPI"
-RUN dotnet build "YKDResumeAPI.csproj" -c Release -o /app/build
+# WORKDIR /src/ClassLibraryProject
+# RUN dotnet build -c Release -o /app
+
+WORKDIR /src/YKDResumeAPI
+RUN dotnet build -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "YKDResumeAPI.csproj" -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
