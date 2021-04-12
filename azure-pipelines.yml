@@ -13,7 +13,7 @@ variables:
   dockerRegistryServiceConnection: '4720e6dd-c6cf-43e7-8d55-87157e459983'
   imageRepository: 'ykdresumeapi'
   containerRegistry: 'ykdbonteregistry.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/**/Dockerfile'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
