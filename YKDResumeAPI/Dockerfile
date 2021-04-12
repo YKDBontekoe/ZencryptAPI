@@ -3,7 +3,7 @@ WORKDIR /app
 
 # Copy csproj and restore as distinct layers
 COPY *.csproj ./
-RUN dotnet restore YKDResumeAPI.sln
+RUN dotnet restore YKDResumeAPI.csproj
 
 # Copy everything else and build
 COPY . ./
