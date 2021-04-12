@@ -17,12 +17,13 @@ COPY . .
 # RUN dotnet build -c Release -o /app
 
 WORKDIR /src/YKDResumeAPI
-RUN dotnet build -c Release -o /app
+RUN dotnet build -c $Configuration -o /app
 
-FROM build AS publish
-RUN dotnet publish -c Release -o /app
+FROM builder AS publish
+ARG Configuration=Release
+RUN dotnet publish -c $Configuration -o /app
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "YKDResumeAPI.dll"]
