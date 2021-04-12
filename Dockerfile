@@ -10,10 +10,10 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build-env
 WORKDIR /app
 
 COPY . ./
-RUN dotnet publish YKDResumeAPI/YKDResumeAPI.csproj -c Release -o out
+RUN dotnet restore YKDResumeAPI/*.csproj
+RUN dotnet publish YKDResumeAPI/*.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim
 WORKDIR /app
 COPY --from=build-env /app/YKDResumeAPI/out .
-
 ENTRYPOINT ["dotnet", "YKDResumeAPI.dll"]
