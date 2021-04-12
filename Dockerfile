@@ -6,8 +6,8 @@ EXPOSE 80
 EXPOSE 443
 
 COPY . ./
-RUN dotnet restore YKDResumeAPI/*.csproj
-RUN dotnet publish YKDResumeAPI/*.csproj -c Release -o out
+RUN dotnet restore YKDResumeAPI/YKDResumeAPI.csproj
+RUN dotnet publish YKDResumeAPI/YKDResumeAPI.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim
 WORKDIR /app
