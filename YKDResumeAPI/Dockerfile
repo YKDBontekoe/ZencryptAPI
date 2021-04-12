@@ -14,4 +14,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim
 WORKDIR /app
 COPY --from=build-env /app/out .
 EXPOSE 80
-ENTRYPOINT ["dotnet", "/app/YKDResumeAPI.dll"]
+ENTRYPOINT ["dotnet", "YKDResumeAPI.dll"]
