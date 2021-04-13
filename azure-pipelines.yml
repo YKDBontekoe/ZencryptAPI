@@ -13,7 +13,7 @@ variables:
   dockerRegistryServiceConnection: '0474c302-4814-4cd0-97de-385e5a00edb6'
   imageRepository: 'ykdresumeapi'
   containerRegistry: 'ykdbonteregistry.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/ZenCryptAPI/Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
