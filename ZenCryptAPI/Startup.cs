@@ -85,7 +85,7 @@ namespace YKDResumeAPI
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DataManagementSystemAPI v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZenCryptAPI v1"));
 
             app.UseHttpsRedirection();
 
