@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.User;
 using Infrastructure.EF.EntityMapping;
 using Microsoft.EntityFrameworkCore;
 

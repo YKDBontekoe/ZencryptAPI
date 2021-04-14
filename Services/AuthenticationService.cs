@@ -11,6 +11,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.DataTransferObjects.User;
+using Domain.Entities.User;
 
 namespace Services
 {

@@ -1,6 +1,8 @@
 ﻿using Domain.DataTransferObjects;
 using Domain.Entities;
 using System.Threading.Tasks;
+using Domain.DataTransferObjects.User;
+using Domain.Entities.User;
 
 namespace Domain.Services
 {

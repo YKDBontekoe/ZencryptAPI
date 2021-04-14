@@ -1,4 +1,4 @@
-﻿namespace Domain.DataTransferObjects
+﻿namespace Domain.DataTransferObjects.User
 {
     public class BaseUserDTO
     {

@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Domain.DataTransferObjects.User;
 using Domain.Entities;
+using Domain.Entities.User;
 using ZenCryptAPI.Models.Data.User;
 
 namespace ZenCryptAPI.Controllers
@@ -65,7 +67,7 @@ namespace ZenCryptAPI.Controllers
         /// </summary>
         /// <param name="user">Register user with all user data</param>
         /// <returns>Will return new user in an api frame</returns>
-        [HttpPost("register")]
+        [HttpPost("")]
         public async Task<IActionResult> Post([FromBody] RegisterUserDTO user)
         {
             try
