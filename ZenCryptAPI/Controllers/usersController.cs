@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
 using Domain.Entities;
 using Domain.Entities.User;
+using Domain.Services.User;
 using ZenCryptAPI.Models.Data.User;
 
 namespace ZenCryptAPI.Controllers

@@ -4,14 +4,14 @@
         <name>ZenCryptAPI</name>
     </assembly>
     <members>
-        <member name="M:ZenCryptAPI.Controllers.usersController.Post(Domain.DataTransferObjects.BaseUserDTO)">
+        <member name="M:ZenCryptAPI.Controllers.usersController.Post(Domain.DataTransferObjects.User.BaseUserDTO)">
             <summary>
                 Returns a generated token from user
             </summary>
             <param name="user">Login user with email and password</param>
             <returns>Will return user data with token in an api frame</returns>
         </member>
-        <member name="M:ZenCryptAPI.Controllers.usersController.Post(Domain.DataTransferObjects.RegisterUserDTO)">
+        <member name="M:ZenCryptAPI.Controllers.usersController.Post(Domain.DataTransferObjects.User.RegisterUserDTO)">
             <summary>
                 Creates a new user and returns new user 
             </summary>

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Domain.DataTransferObjects.Forums;
 using Domain.Entities.Forums;
 
-namespace Domain.Services
+namespace Domain.Services.Forum
 {
     public interface IPostService
     {

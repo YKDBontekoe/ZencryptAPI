@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
 using Domain.Entities.User;
+using Domain.Services.Repository;
+using Domain.Services.User;
 
 namespace Services
 {

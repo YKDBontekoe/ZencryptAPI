@@ -16,6 +16,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Domain.Services.Repository;
+using Domain.Services.User;
 
 namespace ZenCryptAPI
 {

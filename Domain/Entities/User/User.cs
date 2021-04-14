@@ -10,10 +10,16 @@ namespace Domain.Entities.User
         public string Email { get; set; }
         public string Password { get; set; }
 
+
         public virtual ICollection<Post> UploadedPosts { get; set; }
         public virtual ICollection<Comment> UploadedComments { get; set; }
 
-        public virtual ICollection<Post> LikedPosts { get; set; }
-        public virtual ICollection<Comment> LikedComments { get; set; }
+        public virtual ICollection<UserViewedPost> ViewedPosts { get; set; }
+
+        public virtual ICollection<UserLikedPost> LikedPosts { get; set; }
+        public virtual ICollection<UserLikedComment> LikedComments { get; set; }
+
+        public virtual ICollection<UserDislikedPost> DislikedPosts { get; set; }
+        public virtual ICollection<UserDislikedComment> DislikedComments { get; set; }
     }
 }

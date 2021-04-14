@@ -7,6 +7,9 @@ using Domain.DataTransferObjects.Forums;
 using Domain.Entities.Forums;
 using Domain.Exceptions;
 using Domain.Services;
+using Domain.Services.Forum;
+using Domain.Services.Repository;
+using Domain.Services.User;
 
 namespace Services
 {

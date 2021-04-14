@@ -1,7 +1,8 @@
-﻿using Domain.Entities;
-using Domain.Entities.User;
+﻿using Domain.Entities.User;
 using Infrastructure.EF.EntityMapping;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using Domain.Entities.Forums;
 
 namespace Infrastructure.EF.Context
 {
@@ -14,7 +15,10 @@ namespace Infrastructure.EF.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             UserMap.CreateMap(modelBuilder.Entity<User>());
+            PostMap.CreateMap(modelBuilder.Entity<Post>());
+            CommentMap.CreateMap(modelBuilder.Entity<Comment>());
         }
     }
 }
