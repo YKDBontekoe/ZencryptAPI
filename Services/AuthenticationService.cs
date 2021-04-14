@@ -151,7 +151,7 @@ namespace Services
                 throw new NotFoundException("User");
 
             // Check if the passwords match from given user and database user
-            if (dbUser.Password != user.Password)
+            if (!BCrypt.Net.BCrypt.Verify(user.Password, dbUser.Password))
                 // Throw error if the passwords don't match
                 throw new InvalidOperationException("Credentials are incorrect!");
 
@@ -174,6 +174,8 @@ namespace Services
                 // Throws exception if user is already in database
                 throw new DuplicateException(user.Email);
             }
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
             // Insert user into database
             await _userRepository.Insert(user);

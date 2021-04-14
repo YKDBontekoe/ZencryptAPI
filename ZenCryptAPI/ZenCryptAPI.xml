@@ -18,12 +18,12 @@
             <param name="user">Register user with all user data</param>
             <returns>Will return new user in an api frame</returns>
         </member>
-        <member name="T:ZenCryptAPI.Models.Profiles.UserProfile">
+        <member name="T:ZenCryptAPI.Models.Profiles.User.UserProfile">
             <summary>
             Maps user with models
             </summary>
         </member>
-        <member name="M:ZenCryptAPI.Models.Profiles.UserProfile.#ctor">
+        <member name="M:ZenCryptAPI.Models.Profiles.User.UserProfile.#ctor">
             <summary>
             Maps user with Login User Model and User Model
             </summary>

@@ -2,7 +2,7 @@
 using Domain.DataTransferObjects;
 using ZenCryptAPI.Models.Data.User;
 
-namespace ZenCryptAPI.Models.Profiles
+namespace ZenCryptAPI.Models.Profiles.User
 {
     /// <summary>
     /// Maps user with models
