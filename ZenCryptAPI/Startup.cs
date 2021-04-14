@@ -17,7 +17,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace YKDResumeAPI
+namespace ZenCryptAPI
 {
     public class Startup
     {

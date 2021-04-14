@@ -135,7 +135,7 @@ namespace Services
          * Authenticates given user in database
          * Returns user result from database
          */
-        public async Task<User> AuthenticateUser(UserDTO user)
+        public async Task<User> AuthenticateUser(BaseUserDTO user)
         {
             // Find user in database by email
             var dbUsers = await _userRepository.Filter(u => u.Email == user.Email);
@@ -158,6 +158,23 @@ namespace Services
             return dbUser;
         }
 
+        /**
+         * Insert user into database
+         * Returns inserted user from database
+         */
+        public async Task<User> InsertUser(User user)
+        {
+            // Insert user into database
+            await _userRepository.Insert(user);
 
+            // Saves user to database
+            await _userRepository.SaveChanges();
+
+            // Find inserted user by email
+            var insertedUser = await _userRepository.Filter(u => u.Email == user.Email);
+
+            // Returns found user
+            return insertedUser.FirstOrDefault();
+        }
     }
 }

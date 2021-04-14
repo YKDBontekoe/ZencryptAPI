@@ -8,6 +8,7 @@ namespace Infrastructure.EF.EntityMapping
         public static void CreateMap(EntityTypeBuilder<User> entityBuilder)
         {
             entityBuilder.HasKey(u => u.Id);
+            entityBuilder.HasIndex(u => u.Email);
         }
 
     }

@@ -1,4 +1,4 @@
-﻿namespace ZenCryptAPI.Models.User
+﻿namespace ZenCryptAPI.Models.Data.User
 {
     public class UserModel
     {

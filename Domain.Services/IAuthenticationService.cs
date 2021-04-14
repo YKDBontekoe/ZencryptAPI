@@ -9,7 +9,8 @@ namespace Domain.Services
         bool IsValidToken(string token);
         Task<User> GetUserFromToken(string token);
         string GetJsonWebToken(User user);
+        Task<User> AuthenticateUser(BaseUserDTO user);
 
-        Task<User> AuthenticateUser(UserDTO user);
+        Task<User> InsertUser(User user);
     }
 }
