@@ -1,29 +1,24 @@
-﻿using Domain.DataTransferObjects;
-using Domain.Entities;
-using Domain.Exceptions;
-using Domain.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Data;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
-using Domain.Entities.User;
+using Domain.Exceptions;
 using Domain.Services.Repository;
 using Domain.Services.User;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-namespace Services
+namespace Services.User
 {
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfiguration _config;
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Domain.Entities.User.User> _userRepository;
 
-        public AuthenticationService(IConfiguration config, IRepository<User> userRepository)
+        public AuthenticationService(IConfiguration config, IRepository<Domain.Entities.User.User> userRepository)
         {
             _config = config;
             _userRepository = userRepository;
@@ -68,7 +63,7 @@ namespace Services
         /*
          * Reads given token and returns id of user
          */
-        public Task<User> GetUserFromToken(string token)
+        public Task<Domain.Entities.User.User> GetUserFromToken(string token)
         {
             //Create json token handler
             var handler = new JwtSecurityTokenHandler();
@@ -113,7 +108,7 @@ namespace Services
          * Creates a json web token based on a given user at @param
          * Returns token as a string
          */
-        public string GetJsonWebToken(User user)
+        public string GetJsonWebToken(Domain.Entities.User.User user)
         {
             //Retrieve security key from app settings config file
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
@@ -140,7 +135,7 @@ namespace Services
          * Authenticates given user in database
          * Returns user result from database
          */
-        public async Task<User> AuthenticateUser(BaseUserDTO user)
+        public async Task<Domain.Entities.User.User> AuthenticateUser(BaseUserDTO user)
         {
             // Find user in database by email
             var dbUsers = await _userRepository.Filter(u => u.Email == user.Email);
@@ -167,7 +162,7 @@ namespace Services
          * Insert user into database
          * Returns inserted user from database
          */
-        public async Task<User> InsertUser(User user)
+        public async Task<Domain.Entities.User.User> InsertUser(Domain.Entities.User.User user)
         {
             // Find user by email in database
             var emailUserResult = await _userRepository.Filter(u => u.Email == user.Email);

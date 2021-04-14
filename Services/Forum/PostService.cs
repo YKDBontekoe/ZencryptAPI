@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Domain.DataTransferObjects.Forums;
 using Domain.Entities.Forums;
 using Domain.Exceptions;
-using Domain.Services;
 using Domain.Services.Forum;
 using Domain.Services.Repository;
 using Domain.Services.User;
 
-namespace Services
+namespace Services.Forum
 {
     public class PostService : IPostService
     {
@@ -36,6 +33,7 @@ namespace Services
             // Check if token is valid
             if (!isValidToken)
             {
+                // Throw an exception if token is invalid
                 throw new InvalidTokenException();
             }
 
@@ -53,7 +51,7 @@ namespace Services
          * Updates a post using post Id
          * Returns updated post
          */
-        public async Task<Post> UpdatePost(Post post, string token)
+        public async Task<Post> UpdatePost(Guid postId, Post post, string token)
         {
             // Token validation
             var isValidToken = _authenticationService.IsValidToken(token);
@@ -61,6 +59,7 @@ namespace Services
             // Check if token is valid
             if (!isValidToken)
             {
+                // Throw an exception if token is invalid
                 throw new InvalidTokenException();
             }
 
@@ -68,7 +67,7 @@ namespace Services
             var tokenUser = await _authenticationService.GetUserFromToken(token);
 
             // Find post in database
-            var foundPost = await _postRepository.Get(post.Id);
+            var foundPost = await _postRepository.Get(postId);
 
             // Check if post exists
             if (foundPost == null)
@@ -76,6 +75,9 @@ namespace Services
                 // Throw an exception if post has not been found
                 throw new NotFoundException("Post");
             }
+
+            // Set postId in post
+            post.Id = postId;
 
             // Check if user is the owner of the post
             if (foundPost.UploadedByUser.Id != tokenUser.Id)
@@ -99,6 +101,7 @@ namespace Services
             // Check if token is valid
             if (!isValidToken)
             {
+                // Throw an exception if token is invalid
                 throw new InvalidTokenException();
             }
 
