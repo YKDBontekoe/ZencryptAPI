@@ -13,10 +13,10 @@
         </member>
         <member name="M:ZenCryptAPI.Controllers.usersController.Post(Domain.DataTransferObjects.RegisterUserDTO)">
             <summary>
-                Returns a generated token from user
+                Creates a new user and returns new user 
             </summary>
-            <param name="user">Login user with email and password</param>
-            <returns>Will return user data with token in an api frame</returns>
+            <param name="user">Register user with all user data</param>
+            <returns>Will return new user in an api frame</returns>
         </member>
         <member name="T:ZenCryptAPI.Models.Profiles.UserProfile">
             <summary>

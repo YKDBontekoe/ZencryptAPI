@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.DataTransferObjects;
 using ZenCryptAPI.Models.Data.User;
 
 namespace ZenCryptAPI.Models.Profiles
@@ -16,6 +17,7 @@ namespace ZenCryptAPI.Models.Profiles
             CreateMap<Domain.Entities.User, LoginUserModel>();
             CreateMap<Domain.Entities.User, RegisterUserModel>();
             CreateMap<Domain.Entities.User, UserModel>();
+            CreateMap<RegisterUserDTO, Domain.Entities.User>();
         }
     }
 }

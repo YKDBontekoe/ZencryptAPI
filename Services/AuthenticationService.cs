@@ -5,6 +5,7 @@ using Domain.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -164,6 +165,16 @@ namespace Services
          */
         public async Task<User> InsertUser(User user)
         {
+            // Find user by email in database
+            var emailUserResult = await _userRepository.Filter(u => u.Email == user.Email);
+
+            // Check if user exists in database
+            if (emailUserResult.Any())
+            {
+                // Throws exception if user is already in database
+                throw new DuplicateException(user.Email);
+            }
+
             // Insert user into database
             await _userRepository.Insert(user);
 
