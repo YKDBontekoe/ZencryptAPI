@@ -80,7 +80,7 @@ namespace Services.Forum
             post.Id = postId;
 
             // Check if user is the owner of the post
-            if (foundPost.UploadedByUser.Id != tokenUser.Id)
+            if (foundPost.UploadedUserId != tokenUser.Id)
             {
                 throw new NoPermissionException("edit");
             }

@@ -4,8 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Domain.DataTransferObjects.Forums.Post;
+using Domain.Entities.Forums;
+using Domain.Exceptions;
+using Domain.Frames;
 using Domain.Services;
 using Domain.Services.Forum;
+using ZenCryptAPI.Models.Data.Post;
 
 
 namespace ZenCryptAPI.Controllers
@@ -24,35 +29,133 @@ namespace ZenCryptAPI.Controllers
         }
 
         // GET: api/<postsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("")]
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                // Get posts
+                var foundPosts = await _postService.GetPosts();
+
+                // Map posts
+                var postModel = _mapper.Map<IEnumerable<MultiPostModel>>(foundPosts);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new MultiItemFrame<MultiPostModel>()
+                    {Message = $"Found posts", TotalResults = postModel.Count(), Results = postModel};
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
         }
 
         // GET api/<postsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(Guid id)
         {
-            return "value";
+            try
+            {
+                // Get post
+                var foundPost = await _postService.GetPost(id);
+
+                // Map post
+                var postModel = _mapper.Map<SinglePostModel>(foundPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"Found post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
         }
 
         // POST api/<postsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] CreatePostDTO createPost)  
         {
+            try
+            {
+                // Map post
+                var post = _mapper.Map<Post>(createPost);
+
+                // Create post
+                var createdPost = await _postService.CreatePost(post, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(createdPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"Found post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
         }
 
         // PUT api/<postsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(Guid id, [FromBody] UpdatePostDTO updatePost)
         {
+            try
+            {
+            // Map post
+            var post = _mapper.Map<Post>(updatePost);
+
+            // Create post
+            var createdPost = await _postService.UpdatePost(id, post, GetBearerToken());
+
+            // Map to SinglePostModel
+            var postModel = _mapper.Map<SinglePostModel>(createdPost);
+
+            // Wrap the userModel object to an api frame
+            var returnable = new SingleItemFrame<SinglePostModel>()
+                { Message = $"Updated post", Result = postModel };
+
+            // Returns code 200 and the userModel
+            return Ok(returnable);
+        }
+        catch (Exception e)
+        {
+            // Returns 404 with exception message
+            return NotFound(new SingleItemFrame<object> { Message = e.Message
+            });
+        }
         }
 
         // DELETE api/<postsController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        private string GetBearerToken()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("Authorization", out var bearerToken);
+                return bearerToken.ToString().Split(" ")[1];
+            }
+            catch
+            {
+                throw new InvalidTokenException();
+            }
         }
     }
 }

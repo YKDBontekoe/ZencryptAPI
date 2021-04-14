@@ -68,7 +68,7 @@ namespace ZenCryptAPI.Controllers
         /// </summary>
         /// <param name="user">Register user with all user data</param>
         /// <returns>Will return new user in an api frame</returns>
-        [HttpPost("")]
+        [HttpPost()]
         public async Task<IActionResult> Post([FromBody] RegisterUserDTO user)
         {
             try
