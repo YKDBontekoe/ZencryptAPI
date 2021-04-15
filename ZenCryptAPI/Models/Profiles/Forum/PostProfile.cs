@@ -14,8 +14,16 @@ namespace ZenCryptAPI.Models.Profiles.Forum
     {
         public PostProfile()
         {
-            CreateMap<Post, MultiPostModel>();
-            CreateMap<Post, SinglePostModel>();
+            CreateMap<Post, MultiPostModel>()
+                .ForMember(t => t.Likes, opt => opt.MapFrom(d => d.LikedByUsers.Count(c => c.IsActive)))
+                .ForMember(t => t.Dislikes, opt => opt.MapFrom(d => d.DislikedByUsers.Count(c => c.IsActive)))
+                .ForMember(t => t.Views, opt => opt.MapFrom(d => d.ViewedByUsers.Count(c => c.IsActive))); 
+
+            CreateMap<Post, SinglePostModel>()
+                .ForMember(t => t.Likes, opt => opt.MapFrom(d => d.LikedByUsers.Count(c => c.IsActive)))
+                .ForMember(t => t.Dislikes, opt => opt.MapFrom(d => d.DislikedByUsers.Count(c => c.IsActive)))
+                .ForMember(t => t.Views, opt => opt.MapFrom(d => d.ViewedByUsers.Count(c => c.IsActive)));
+
             CreateMap<CreatePostDTO, Post>();
             CreateMap<UpdatePostDTO, Post>();
         }

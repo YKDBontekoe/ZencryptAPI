@@ -18,7 +18,7 @@ namespace ZenCryptAPI.Models.Profiles.Forum
         {
             CreateMap<Comment, MultiCommentModel>();
             CreateMap<Comment, SingleCommentModel>();
-            CreateMap<CommentDTO, Post>();
+            CreateMap<CommentDTO, Comment>();
         }
     }
 }
