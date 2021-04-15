@@ -14,21 +14,21 @@ using ZenCryptAPI.Models.Data.Post;
 
 namespace ZenCryptAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/posts")]
     [ApiController]
-    public class postsController : ControllerBase
+    public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
         private readonly IMapper _mapper;
 
-        public postsController(IPostService postService, IMapper mapper)
+        public PostsController(IPostService postService, IMapper mapper)
         {
             _postService = postService;
             _mapper = mapper;
         }
 
         //------------------------------ POST --------------------------------
-        // GET: api/<postsController>
+        // GET: api/<PostsController>
         [HttpGet("")]
         public async Task<IActionResult> Get()
         {
@@ -54,7 +54,7 @@ namespace ZenCryptAPI.Controllers
             }
         }
 
-        // GET api/<postsController>/5
+        // GET api/<PostsController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -80,7 +80,7 @@ namespace ZenCryptAPI.Controllers
             }
         }
 
-        // POST api/<postsController>
+        // POST api/<PostsController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreatePostDTO createPost)
         {
@@ -109,7 +109,85 @@ namespace ZenCryptAPI.Controllers
             }
         }
 
-        // PUT api/<postsController>/5
+        // POST api/<PostsController>/like 
+        [HttpPost("{id}/like")]
+        public async Task<IActionResult> PostLike(Guid id) 
+        {
+            try
+            {
+                // Create post
+                var likedPost = await _postService.UserLikePost(id, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(likedPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"Liked post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        // POST api/<PostsController>/{id}/dislike 
+        [HttpPost("{id}/dislike")]
+        public async Task<IActionResult> PostDislike(Guid id) 
+        {
+            try
+            {
+                // Create post
+                var likedPost = await _postService.UserDislikePost(id, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(likedPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"Disliked post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        // POST api/<PostsController>/{id}/dislike 
+        [HttpPost("{id}/view")]
+        public async Task<IActionResult> PostView(Guid id) 
+        {
+            try
+            {
+                // Create post
+                var likedPost = await _postService.UserDislikePost(id, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(likedPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"Disliked post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        // PUT api/<PostsController>/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] UpdatePostDTO updatePost)
         {
@@ -141,7 +219,7 @@ namespace ZenCryptAPI.Controllers
             }
         }
 
-        // DELETE api/<postsController>/5
+        // DELETE api/<PostsController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid postId) 
         {

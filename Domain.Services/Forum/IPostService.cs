@@ -12,5 +12,9 @@ namespace Domain.Services.Forum
         Task<Post> DeletePost(Guid postId, string token); 
         Task<Post> GetPost(Guid postId);
         Task<IEnumerable<Post>> GetPosts();
+
+        Task<Post> UserLikePost(Guid postId, string token);
+        Task<Post> UserDislikePost(Guid postId, string token);
+        Task<Post> UserViewPost(Guid postId, string token);
     }
 }

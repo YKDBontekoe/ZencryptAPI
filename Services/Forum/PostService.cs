@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities.Forums;
+using Domain.Entities.User;
 using Domain.Exceptions;
 using Domain.Services.Forum;
 using Domain.Services.Repository;
@@ -27,15 +28,8 @@ namespace Services.Forum
          */
         public async Task<Post> CreatePost(Post post, string token)
         {
-            // Token validation
-            var isValidToken = _authenticationService.IsValidToken(token);
-
-            // Check if token is valid
-            if (!isValidToken)
-            {
-                // Throw an exception if token is invalid
-                throw new InvalidTokenException();
-            }
+            // Validates Token
+            ValidateToken(token);
 
             // Get user from token
             var tokenUser = await _authenticationService.GetUserFromToken(token);
@@ -53,15 +47,8 @@ namespace Services.Forum
          */
         public async Task<Post> UpdatePost(Guid postId, Post post, string token)
         {
-            // Token validation
-            var isValidToken = _authenticationService.IsValidToken(token);
-
-            // Check if token is valid
-            if (!isValidToken)
-            {
-                // Throw an exception if token is invalid
-                throw new InvalidTokenException();
-            }
+            // Validates Token
+            ValidateToken(token);
 
             // Get user from token
             var tokenUser = await _authenticationService.GetUserFromToken(token);
@@ -95,15 +82,8 @@ namespace Services.Forum
          */
         public async Task<Post> DeletePost(Guid postId, string token)
         {
-            // Token validation
-            var isValidToken = _authenticationService.IsValidToken(token);
-
-            // Check if token is valid
-            if (!isValidToken)
-            {
-                // Throw an exception if token is invalid
-                throw new InvalidTokenException();
-            }
+            // Validates Token
+            ValidateToken(token);
 
             // Get user from token
             var tokenUser = await _authenticationService.GetUserFromToken(token);
@@ -166,6 +146,153 @@ namespace Services.Forum
 
             // Returns found posts
             return foundPosts;
+        }
+
+        /**
+         * Add like from a user
+         * Returns liked post
+         */
+        public async Task<Post> UserLikePost(Guid postId, string token)
+        {
+            // Find post
+            var foundPost = await _postRepository.Get(postId);
+
+            // Check if post is null
+            if (foundPost == null)
+            {
+                // Throw exception if there aren't any posts
+                throw new NotFoundException("post");
+            }
+
+            // Validates Token
+            ValidateToken(token);
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(token);
+            
+            // Create UserLike object
+            var userLike = new UserLikedPost
+            {
+                PostId = postId,
+                UserId = tokenUser.Id
+            };
+
+            // Check if user has already liked this post
+            if (tokenUser.LikedPosts.Any(c => c.PostId == postId))
+            {
+                // Throw CannotPerformActionException when user has already liked this post
+                throw new CannotPerformActionException("You have already liked this post");
+            }
+
+            // Add like to post
+            foundPost.LikedByUsers.Add(userLike);
+
+            // Update post
+            await _postRepository.Update(foundPost);
+
+            // Return updated post
+            return foundPost;
+        }
+
+        /**
+         * Add dislike from a user
+         * Returns disliked post
+         */
+        public async Task<Post> UserDislikePost(Guid postId, string token)
+        {
+            // Find post
+            var foundPost = await _postRepository.Get(postId);
+
+            // Check if post is null
+            if (foundPost == null)
+            {
+                // Throw exception if there aren't any posts
+                throw new NotFoundException("post");
+            }
+
+            // Validates Token
+            ValidateToken(token);
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(token);
+
+            // Check if user has already disliked this post
+            if (tokenUser.DislikedPosts.Any(c => c.PostId == postId))
+            {
+                // Throw CannotPerformActionException when user has already disliked this post
+                throw new CannotPerformActionException("You have already disliked this post");
+            }
+
+            // Create UserDislike object
+            var userDislike = new UserDislikedPost
+            {
+                PostId = postId,
+                UserId = tokenUser.Id
+            };
+
+            // Add dislike to post
+            foundPost.DislikedByUsers.Add(userDislike);
+
+            // Update post
+            await _postRepository.Update(foundPost);
+
+            // Return updated post
+            return foundPost;
+        }
+
+        public async Task<Post> UserViewPost(Guid postId, string token)
+        {
+            // Find post
+            var foundPost = await _postRepository.Get(postId);
+
+            // Check if post is null
+            if (foundPost == null)
+            {
+                // Throw exception if there aren't any posts
+                throw new NotFoundException("post");
+            }
+
+            // Validates Token
+            ValidateToken(token);
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(token);
+
+            // Check if user has already viewed this post
+            if (tokenUser.ViewedPosts.Any(c => c.PostId == postId))
+            {
+                // Return found post if user has already seen this post
+                return foundPost;
+            }
+
+            // Create UserViewedPost object
+            var userView = new UserViewedPost
+            {
+                PostId = postId,
+                UserId = tokenUser.Id
+            };
+
+            // Add view to post
+            foundPost.ViewedByUsers.Add(userView);
+
+            // Update post
+            await _postRepository.Update(foundPost);
+
+            // Return updated post
+            return foundPost;
+        }
+
+        private void ValidateToken(string token)
+        {
+            // Token validation
+            var isValidToken = _authenticationService.IsValidToken(token);
+
+            // Check if token is valid
+            if (!isValidToken)
+            {
+                // Throw an exception if token is invalid
+                throw new InvalidTokenException();
+            }
         }
     }
 }

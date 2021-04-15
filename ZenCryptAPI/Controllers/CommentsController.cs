@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Domain.DataTransferObjects.Forums.Comment;
+using Domain.Entities.Forums;
+using Domain.Exceptions;
 using Domain.Frames;
 using Domain.Services.Forum;
 using Domain.Services.User;
@@ -39,7 +42,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the commentModel object to an api frame
                 var returnable = new MultiItemFrame<MultiCommentModel>()
-                    { Message = $"Found posts", TotalResults = commentModel.Count(), Results = commentModel };
+                    { Message = $"Found comments", TotalResults = commentModel.Count(), Results = commentModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -65,7 +68,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the commentModel object to an api frame
                 var returnable = new SingleItemFrame<SingleCommentModel>()
-                    { Message = $"Found posts", Result = commentModel };
+                    { Message = $"Found comment", Result = commentModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -79,8 +82,31 @@ namespace ZenCryptAPI.Controllers
 
         // POST api/<ValuesController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post(Guid postId, [FromBody] CommentDTO commentDto) 
         {
+            try
+            {
+                // Map comment data transfer object to comment object
+                var comment = _mapper.Map<Comment>(commentDto);
+
+                // Create comment
+                var createdComment = await _commentService.CreateCommentToPost(comment, postId, GetBearerToken());
+
+                // Map to SingleCommentModel
+                var commentModel = _mapper.Map<SingleCommentModel>(createdComment);
+
+                // Wrap the commentModel object to an api frame
+                var returnable = new SingleItemFrame<SingleCommentModel>()
+                    { Message = $"Created comment", Result = commentModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
         }
 
         // PUT api/<ValuesController>/5
@@ -93,6 +119,19 @@ namespace ZenCryptAPI.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        private string GetBearerToken()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("Authorization", out var bearerToken);
+                return bearerToken.ToString().Split(" ")[1];
+            }
+            catch
+            {
+                throw new InvalidTokenException();
+            }
         }
     }
 }

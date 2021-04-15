@@ -14,15 +14,15 @@ using ZenCryptAPI.Models.Data.User;
 
 namespace ZenCryptAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     [EnableCors("CurPolicy")]
-    public class usersController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IAuthenticationService _authService;
         private readonly IMapper _mapper;
 
-        public usersController(IAuthenticationService authService, IMapper mapper)
+        public UsersController(IAuthenticationService authService, IMapper mapper)
         {
             _authService = authService;
             _mapper = mapper;
