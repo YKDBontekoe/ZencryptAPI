@@ -16,5 +16,8 @@ namespace Domain.Services.Forum
         Task<Post> UserLikePost(Guid postId, string token);
         Task<Post> UserDislikePost(Guid postId, string token);
         Task<Post> UserViewPost(Guid postId, string token);
+
+        Task<Post> UndoUserLikePost(Guid postId, string token);
+        Task<Post> UndoUserDislikePost(Guid postId, string token);
     }
 }

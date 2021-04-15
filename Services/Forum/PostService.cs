@@ -15,11 +15,15 @@ namespace Services.Forum
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IRepository<Post> _postRepository;
+        private readonly IRepository<UserLikedPost> _userLikedRepository;
+        private readonly IRepository<UserDislikedPost> _userDislikedRepository;
 
-        public PostService(IAuthenticationService authenticationService, IRepository<Post> postRepository)
+        public PostService(IAuthenticationService authenticationService, IRepository<Post> postRepository, IRepository<UserLikedPost> userLikedRepository, IRepository<UserDislikedPost> userDislikedRepository)
         {
             _authenticationService = authenticationService;
             _postRepository = postRepository;
+            _userLikedRepository = userLikedRepository;
+            _userDislikedRepository = userDislikedRepository;
         }
 
         /**
@@ -178,7 +182,7 @@ namespace Services.Forum
             };
 
             // Check if user has already liked this post
-            if (tokenUser.LikedPosts.Any(c => c.PostId == postId))
+            if (tokenUser.LikedPosts.Any(c => c.PostId == postId && c.IsActive))
             {
                 // Throw CannotPerformActionException when user has already liked this post
                 throw new CannotPerformActionException("You have already liked this post");
@@ -217,7 +221,7 @@ namespace Services.Forum
             var tokenUser = await _authenticationService.GetUserFromToken(token);
 
             // Check if user has already disliked this post
-            if (tokenUser.DislikedPosts.Any(c => c.PostId == postId))
+            if (tokenUser.DislikedPosts.Any(c => c.PostId == postId && c.IsActive))
             {
                 // Throw CannotPerformActionException when user has already disliked this post
                 throw new CannotPerformActionException("You have already disliked this post");
@@ -240,6 +244,10 @@ namespace Services.Forum
             return foundPost;
         }
 
+        /**
+        * Add view to a post from a user
+        * Returns viewed post
+        */
         public async Task<Post> UserViewPost(Guid postId, string token)
         {
             // Find post
@@ -259,7 +267,7 @@ namespace Services.Forum
             var tokenUser = await _authenticationService.GetUserFromToken(token);
 
             // Check if user has already viewed this post
-            if (tokenUser.ViewedPosts.Any(c => c.PostId == postId))
+            if (tokenUser.ViewedPosts.Any(c => c.PostId == postId && c.IsActive))
             {
                 // Return found post if user has already seen this post
                 return foundPost;
@@ -277,6 +285,84 @@ namespace Services.Forum
 
             // Update post
             await _postRepository.Update(foundPost);
+
+            // Return updated post
+            return foundPost;
+        }
+
+        /**
+        * Removes dislike on post from a user
+        * Returns un- disliked post
+        */
+        public async Task<Post> UndoUserLikePost(Guid postId, string token)
+        {
+            // Find post
+            var foundPost = await _postRepository.Get(postId);
+
+            // Check if post is null
+            if (foundPost == null)
+            {
+                // Throw exception if there aren't any posts
+                throw new NotFoundException("post");
+            }
+
+            // Validates Token
+            ValidateToken(token);
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(token);
+
+            // Find liked post of user
+            var foundLikedPost = tokenUser.LikedPosts.FirstOrDefault(c => c.PostId == postId);
+
+            // Check if like has been found
+            if (foundLikedPost == null)
+            {
+                // Throw NotFoundException if like was not found
+                throw new NotFoundException("not disliked");
+            }
+
+            // Remove like from post
+            await _userLikedRepository.Delete(foundLikedPost);
+
+            // Return updated post
+            return foundPost;
+        }
+
+        /**
+        * Removes like on post from a user
+        * Returns un- liked post
+        */
+        public async Task<Post> UndoUserDislikePost(Guid postId, string token)
+        {
+            // Find post
+            var foundPost = await _postRepository.Get(postId);
+
+            // Check if post is null
+            if (foundPost == null)
+            {
+                // Throw exception if there aren't any posts
+                throw new NotFoundException("post");
+            }
+
+            // Validates Token
+            ValidateToken(token);
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(token);
+
+            // Find liked post of user
+            var foundDislikedPost = tokenUser.DislikedPosts.FirstOrDefault(c => c.PostId == postId);
+
+            // Check if dislike has been found
+            if (foundDislikedPost == null)
+            {
+                // Throw NotFoundException if dislike was not found
+                throw new NotFoundException("not disliked");
+            }
+
+            // Remove dislike from post
+            await _userDislikedRepository.Delete(foundDislikedPost);
 
             // Return updated post
             return foundPost;

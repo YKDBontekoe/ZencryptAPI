@@ -248,6 +248,58 @@ namespace ZenCryptAPI.Controllers
             }
         }
 
+        // DELETE api/<PostsController>/like 
+        [HttpDelete("{id}/like")]
+        public async Task<IActionResult> DeleteLike(Guid id)  
+        {
+            try
+            {
+                // Create post
+                var likedPost = await _postService.UndoUserLikePost(id, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(likedPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"un- Liked post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        // DELETE api/<PostsController>/{id}/dislike 
+        [HttpDelete("{id}/dislike")]
+        public async Task<IActionResult> DeleteDislike(Guid id) 
+        {
+            try
+            {
+                // Create post
+                var likedPost = await _postService.UndoUserDislikePost(id, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(likedPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"un- Disliked post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
         private string GetBearerToken()
         {
             try
