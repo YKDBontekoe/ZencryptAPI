@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.DataTransferObjects.Forums.Post;
 using Domain.Entities.Forums;
 using Domain.Exceptions;
 using Domain.Frames;
-using Domain.Services;
 using Domain.Services.Forum;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ZenCryptAPI.Models.Data.Post;
 
 
@@ -19,7 +18,7 @@ namespace ZenCryptAPI.Controllers
     [ApiController]
     public class postsController : ControllerBase
     {
-        private readonly IPostService _postService; 
+        private readonly IPostService _postService;
         private readonly IMapper _mapper;
 
         public postsController(IPostService postService, IMapper mapper)
@@ -28,6 +27,7 @@ namespace ZenCryptAPI.Controllers
             _mapper = mapper;
         }
 
+        //------------------------------ POST --------------------------------
         // GET: api/<postsController>
         [HttpGet("")]
         public async Task<IActionResult> Get()
@@ -42,7 +42,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the userModel object to an api frame
                 var returnable = new MultiItemFrame<MultiPostModel>()
-                    {Message = $"Found posts", TotalResults = postModel.Count(), Results = postModel};
+                { Message = $"Found posts", TotalResults = postModel.Count(), Results = postModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -68,7 +68,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the userModel object to an api frame
                 var returnable = new SingleItemFrame<SinglePostModel>()
-                    { Message = $"Found post", Result = postModel };
+                { Message = $"Found post", Result = postModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -82,7 +82,7 @@ namespace ZenCryptAPI.Controllers
 
         // POST api/<postsController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreatePostDTO createPost)  
+        public async Task<IActionResult> Post([FromBody] CreatePostDTO createPost)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the userModel object to an api frame
                 var returnable = new SingleItemFrame<SinglePostModel>()
-                    { Message = $"Found post", Result = postModel };
+                { Message = $"Found post", Result = postModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -115,34 +115,59 @@ namespace ZenCryptAPI.Controllers
         {
             try
             {
-            // Map post
-            var post = _mapper.Map<Post>(updatePost);
+                // Map post
+                var post = _mapper.Map<Post>(updatePost);
 
-            // Create post
-            var createdPost = await _postService.UpdatePost(id, post, GetBearerToken());
+                // Create post
+                var createdPost = await _postService.UpdatePost(id, post, GetBearerToken());
 
-            // Map to SinglePostModel
-            var postModel = _mapper.Map<SinglePostModel>(createdPost);
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(createdPost);
 
-            // Wrap the userModel object to an api frame
-            var returnable = new SingleItemFrame<SinglePostModel>()
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
                 { Message = $"Updated post", Result = postModel };
 
-            // Returns code 200 and the userModel
-            return Ok(returnable);
-        }
-        catch (Exception e)
-        {
-            // Returns 404 with exception message
-            return NotFound(new SingleItemFrame<object> { Message = e.Message
-            });
-        }
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object>
+                {
+                    Message = e.Message
+                });
+            }
         }
 
         // DELETE api/<postsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(Guid postId) 
         {
+            try
+            {
+                // Create post 
+                var deletedPost = await _postService.DeletePost(postId, GetBearerToken());
+
+                // Map to SinglePostModel
+                var postModel = _mapper.Map<SinglePostModel>(deletedPost);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<SinglePostModel>()
+                    { Message = $"Deleted post", Result = postModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object>
+                {
+                    Message = e.Message
+                });
+            }
         }
 
         private string GetBearerToken()
