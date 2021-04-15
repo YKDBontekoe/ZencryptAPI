@@ -16,8 +16,13 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Domain.Services.Forum;
+using Domain.Services.Repository;
+using Domain.Services.User;
+using Services.Forum;
+using Services.User;
 
-namespace YKDResumeAPI
+namespace ZenCryptAPI
 {
     public class Startup
     {
@@ -52,6 +57,8 @@ namespace YKDResumeAPI
             services.AddSingleton(Configuration);
             services.AddScoped(typeof(IRepository<>), typeof(SQLRepository<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<ICommentService, CommentService>();
 
 
             services.AddControllers().AddNewtonsoftJson(options =>

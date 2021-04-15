@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Services.Repository;
 
 
 namespace Infrastructure.EF
@@ -28,7 +29,7 @@ namespace Infrastructure.EF
 
         public Task<T> Get(Guid id)
         {
-            return _entities.SingleOrDefaultAsync(s => s.Id == id);
+            return _entities.SingleOrDefaultAsync(s => s.Id == id && s.IsActive);
         }
 
         public async Task<T> Insert(T entity)
@@ -45,6 +46,7 @@ namespace Infrastructure.EF
         {
             IsNull(entity);
 
+            _entityContext.Entry(entity).State = EntityState.Modified;
             _entities.Update(entity);
             await _entityContext.SaveChangesAsync();
 

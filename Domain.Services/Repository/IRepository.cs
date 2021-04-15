@@ -1,9 +1,9 @@
-﻿using Domain.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Entities;
 
-namespace Domain.Services
+namespace Domain.Services.Repository
 {
     public interface IRepository<T> where T : BaseEntity
     {
