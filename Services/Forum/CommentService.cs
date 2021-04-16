@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Entities.Forums;
 using Domain.Exceptions;
 using Domain.Services.Forum;
-using Domain.Services.Repository;
+using Domain.Services.Repositories;
 using Domain.Services.User;
 
 namespace Services.Forum
@@ -14,14 +14,14 @@ namespace Services.Forum
     public class CommentService : ICommentService
     {
         private readonly IAuthenticationService _authenticationService;
-        private readonly IRepository<Comment> _commentRepository;
-        private readonly IRepository<Post> _postRepository;
+        private readonly ISQLRepository<Comment> _commentIsqlRepository;
+        private readonly ISQLRepository<Post> _postIsqlRepository;
 
-        public CommentService(IAuthenticationService authenticationService, IRepository<Comment> commentRepository, IRepository<Post> postRepository)
+        public CommentService(IAuthenticationService authenticationService, ISQLRepository<Comment> commentIsqlRepository, ISQLRepository<Post> postIsqlRepository)
         {
             _authenticationService = authenticationService;
-            _commentRepository = commentRepository;
-            _postRepository = postRepository;
+            _commentIsqlRepository = commentIsqlRepository;
+            _postIsqlRepository = postIsqlRepository;
         }
 
         /**
@@ -31,7 +31,7 @@ namespace Services.Forum
         public async Task<Comment> CreateCommentToPost(Comment comment, Guid postId, string token)
         {
             // Get post from database by Id
-            var foundPost = await _postRepository.Get(postId);
+            var foundPost = await _postIsqlRepository.Get(postId);
 
             // Check if post is in database
             if (foundPost == null)
@@ -60,7 +60,7 @@ namespace Services.Forum
             comment.PostId = postId;
 
             // Create and return new comment
-            return await _commentRepository.Insert(comment);
+            return await _commentIsqlRepository.Insert(comment);
         }
 
         /**
@@ -70,7 +70,7 @@ namespace Services.Forum
         public async Task<Comment> UpdateComment(Guid commentId, Comment comment, string token)
         {
             // Find comment in database
-            var foundComment = await _commentRepository.Get(commentId);
+            var foundComment = await _commentIsqlRepository.Get(commentId);
 
             // Check if comment is in database
             if (foundComment == null)
@@ -100,7 +100,7 @@ namespace Services.Forum
             }
 
             // Update and return updated comment
-            return await _commentRepository.Update(comment);
+            return await _commentIsqlRepository.Update(comment);
         }
 
         /**
@@ -110,7 +110,7 @@ namespace Services.Forum
         public async Task<Comment> DeleteComment(Guid commentId, string token)
         {
             // Get comment from database
-            var foundComment = await _commentRepository.Get(commentId);
+            var foundComment = await _commentIsqlRepository.Get(commentId);
 
             // Check if comment is in database
             if (foundComment == null)
@@ -140,7 +140,7 @@ namespace Services.Forum
             }
 
             // Delete comment and return deleted comment
-            return await _commentRepository.Delete(foundComment);
+            return await _commentIsqlRepository.Delete(foundComment);
         }
 
         /**
@@ -148,7 +148,7 @@ namespace Services.Forum
          */
         public Task<Comment> GetComment(Guid commentId)
         {
-            return _commentRepository.Get(commentId);
+            return _commentIsqlRepository.Get(commentId);
         }
 
         /**
@@ -157,7 +157,7 @@ namespace Services.Forum
         public async Task<IEnumerable<Comment>> GetCommentFromPost(Guid postId)
         {
             // Get post from database by Id
-            var foundPost = await _postRepository.Get(postId);
+            var foundPost = await _postIsqlRepository.Get(postId);
 
             // Check if post is in database
             if (foundPost == null)

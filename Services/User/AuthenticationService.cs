@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
 using Domain.Exceptions;
-using Domain.Services.Repository;
+using Domain.Services.Repositories;
 using Domain.Services.User;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,12 +16,12 @@ namespace Services.User
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfiguration _config;
-        private readonly IRepository<Domain.Entities.User.User> _userRepository;
+        private readonly ISQLRepository<Domain.Entities.User.User> _userIsqlRepository;
 
-        public AuthenticationService(IConfiguration config, IRepository<Domain.Entities.User.User> userRepository)
+        public AuthenticationService(IConfiguration config, ISQLRepository<Domain.Entities.User.User> userIsqlRepository)
         {
             _config = config;
-            _userRepository = userRepository;
+            _userIsqlRepository = userIsqlRepository;
         }
 
 
@@ -89,7 +89,7 @@ namespace Services.User
                 try
                 {
                     //Returns parsed token
-                    return _userRepository.Get(Guid.Parse(claims.Claims.ToArray()[0].Value));
+                    return _userIsqlRepository.Get(Guid.Parse(claims.Claims.ToArray()[0].Value));
                 }
                 catch
                 {
@@ -138,7 +138,7 @@ namespace Services.User
         public async Task<Domain.Entities.User.User> AuthenticateUser(BaseUserDTO user)
         {
             // Find user in database by email
-            var dbUsers = await _userRepository.Filter(u => u.Email == user.Email);
+            var dbUsers = await _userIsqlRepository.Filter(u => u.Email == user.Email);
 
             // Retrieve first user
             // Emails are always unique and so there wil never be more than 1 result
@@ -165,7 +165,7 @@ namespace Services.User
         public async Task<Domain.Entities.User.User> InsertUser(Domain.Entities.User.User user)
         {
             // Find user by email in database
-            var emailUserResult = await _userRepository.Filter(u => u.Email == user.Email);
+            var emailUserResult = await _userIsqlRepository.Filter(u => u.Email == user.Email);
 
             // Check if user exists in database
             if (emailUserResult.Any())
@@ -177,13 +177,13 @@ namespace Services.User
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
             // Insert user into database
-            await _userRepository.Insert(user);
+            await _userIsqlRepository.Insert(user);
 
             // Saves user to database
-            await _userRepository.SaveChanges();
+            await _userIsqlRepository.SaveChanges();
 
             // Find inserted user by email
-            var insertedUser = await _userRepository.Filter(u => u.Email == user.Email);
+            var insertedUser = await _userIsqlRepository.Filter(u => u.Email == user.Email);
 
             // Returns found user
             return insertedUser.FirstOrDefault();

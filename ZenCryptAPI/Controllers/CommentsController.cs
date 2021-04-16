@@ -7,7 +7,7 @@ using AutoMapper;
 using Domain.DataTransferObjects.Forums.Comment;
 using Domain.Entities.Forums;
 using Domain.Exceptions;
-using Domain.Frames;
+using Domain.Frames.Endpoint;
 using Domain.Services.Forum;
 using Domain.Services.User;
 using ZenCryptAPI.Models.Data.Comment;
