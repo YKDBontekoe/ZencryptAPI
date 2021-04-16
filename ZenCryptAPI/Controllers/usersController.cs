@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Domain.DataTransferObjects;
-using Domain.Frames;
 using Domain.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
 using Domain.Entities;
 using Domain.Entities.User;
+using Domain.Frames.Endpoint;
 using Domain.Services.User;
 using ZenCryptAPI.Models.Data.User;
 
