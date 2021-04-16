@@ -47,6 +47,7 @@ namespace Infrastructure.EF
             IsNull(entity);
 
             _entityContext.Entry(entity).State = EntityState.Modified;
+            entity.ModifiedAt = DateTime.Now;
             _entities.Update(entity);
             await _entityContext.SaveChangesAsync();
 

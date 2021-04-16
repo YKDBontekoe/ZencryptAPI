@@ -94,7 +94,7 @@ namespace ZenCryptAPI
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZenCryptAPI v1"));
 
-            // app.UseHttpsRedirection();
+            UpdateDatabase(app);
 
             app.UseAuthentication();
             app.UseRouting();
@@ -108,6 +108,16 @@ namespace ZenCryptAPI
             });
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        // Automatically updates database on startup
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<EntityContext>();
+            context?.Database.Migrate();
         }
     }
 }
