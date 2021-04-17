@@ -1,4 +1,5 @@
 ﻿using System;
+using Domain.Entities.SQL.Forums;
 
 namespace Domain.Entities.SQL.User
 {

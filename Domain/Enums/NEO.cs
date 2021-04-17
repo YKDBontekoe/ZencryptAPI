@@ -8,6 +8,6 @@ namespace Domain.Enums
 {
     public enum NEO
     {
-        LIKED, DISLIKED, FOLLOWED
+        LIKED, DISLIKED, FOLLOWED, VIEWED, POSTED
     }
 }

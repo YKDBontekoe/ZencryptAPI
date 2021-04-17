@@ -23,7 +23,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.Forums.Comment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -46,7 +46,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UploadedUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("PostId");
 
@@ -57,7 +57,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.Forums.Post", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -80,7 +80,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UploadedUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("UploadedUserId");
 
@@ -89,7 +89,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -118,7 +118,7 @@ namespace Infrastructure.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("Email");
 
@@ -127,7 +127,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserDislikedComment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -146,7 +146,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("CommentId");
 
@@ -157,7 +157,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserDislikedPost", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -176,7 +176,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("PostId");
 
@@ -187,7 +187,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserLikedComment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -206,7 +206,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("CommentId");
 
@@ -217,7 +217,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserLikedPost", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -236,7 +236,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("PostId");
 
@@ -247,7 +247,7 @@ namespace Infrastructure.EF.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserViewedPost", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EntityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -266,7 +266,7 @@ namespace Infrastructure.EF.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("EntityId");
 
                     b.HasIndex("PostId");
 

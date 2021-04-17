@@ -9,7 +9,7 @@ namespace Domain.Entities.Neo
     public class NeoEntity
     {
         public int id { get; set; }
-        public Guid Id { get; set; } 
+        public string EntityId { get; set; } 
         public string entityType { get; set; }
     }
 }

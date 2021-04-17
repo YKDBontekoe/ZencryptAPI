@@ -30,7 +30,7 @@ namespace Services.Forum
          */
         public async Task<Comment> CreateCommentToPost(Comment comment, Guid postId, string token)
         {
-            // Get post from database by Id
+            // Get post from database by EntityId
             var foundPost = await _postIsqlRepository.Get(postId);
 
             // Check if post is in database
@@ -156,7 +156,7 @@ namespace Services.Forum
          */
         public async Task<IEnumerable<Comment>> GetCommentFromPost(Guid postId)
         {
-            // Get post from database by Id
+            // Get post from database by EntityId
             var foundPost = await _postIsqlRepository.Get(postId);
 
             // Check if post is in database

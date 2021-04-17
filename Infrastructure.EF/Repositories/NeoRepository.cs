@@ -11,6 +11,7 @@ using Domain.Frames.BoundObjects;
 using Domain.Services.Repositories;
 using Microsoft.Extensions.Configuration;
 using Neo4jClient;
+using Neo4jClient.Cypher;
 
 namespace Infrastructure.EF.Repositories
 {
@@ -50,13 +51,15 @@ namespace Infrastructure.EF.Repositories
                     throw new NotFoundException(_objName + " in neo");
                 }
 
-                return await _sqlRepository.Get(foundItem.Id);
+                var temp = Guid.Parse(foundItem.EntityId);
+
+                return await _sqlRepository.Get(temp);
         }
 
         public async Task<T> Insert(T entity)
         {
             await _client.Cypher
-                .Merge("(item:" + _objName + "{ Id : \"" + entity.Id + "\", entityType: \"" + _objName  + "\" })")
+                .Merge("(item:" + _objName + "{ EntityId : \"" + entity.Id + "\", entityType: \"" + _objName  + "\" })")
                 .ExecuteWithoutResultsAsync();
 
             return entity;
@@ -90,14 +93,12 @@ namespace Infrastructure.EF.Repositories
 
         public async Task<DualNeoRelationBoundObjects<TA, TB>> CreateRelation<TA, TB>(TA entityA, NEO relation, TB entityB) where TA : BaseEntity where TB : BaseEntity
         {
-           await _client.Cypher
-                .Match("(user1:User)", "(user2:User)")
-                .Where((TA item1) => item1.Id == entityA.Id)
-                .AndWhere((TB item2) => item2.Id == entityB.Id)
-                .CreateUnique($"item1-[:{relation}]->item2")
+             await _client.Cypher
+                .Match("(item1:" + typeof(TA).Name + ")", "(item2:" + typeof(TB).Name + ") WHERE (item1.EntityId = '" + entityA.Id + "') AND (item2.EntityId = '" + entityB.Id + "')")
+                .Create($"(item1)-[r:{relation}]->(item2)")
                 .ExecuteWithoutResultsAsync();
 
-           var itemRelationObject = new DualNeoRelationBoundObjects<TA, TB>()
+           var itemRelationObject = new DualNeoRelationBoundObjects<TA, TB>
            {
                ObjectA = entityA,
                RelationShip = relation,
@@ -105,6 +106,22 @@ namespace Infrastructure.EF.Repositories
            };
 
            return itemRelationObject;
+        }
+
+        public async Task<DualNeoRelationBoundObjects<TA, TB>> RemoveRelation<TA, TB>(TA entityA, NEO relation, TB entityB) where TA : BaseEntity where TB : BaseEntity
+        {
+            await _client.Cypher
+                .Match($"(item1:{typeof(TA).Name})-[r]->({typeof(TB).Name}) WHERE (item1.EntityId = '" + entityA.Id + "') AND (item2.EntityId = '" + entityB.Id + "') AND type(r) = ('" + relation + "')")
+                .Delete("r").ExecuteWithoutResultsAsync();
+
+            var itemRelationObject = new DualNeoRelationBoundObjects<TA, TB> 
+            {
+                ObjectA = entityA,
+                RelationShip = relation,
+                ObjectC = entityB
+            };
+
+            return itemRelationObject;
         }
     }
 }

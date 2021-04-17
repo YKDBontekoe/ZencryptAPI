@@ -14,5 +14,7 @@ namespace Domain.Services.Repositories
             where TA : BaseEntity where TB : BaseEntity;
         Task<DualNeoRelationBoundObjects<TA, TB>> CreateRelation<TA, TB>(TA entityA, NEO relation, TB entityB)
             where TA : BaseEntity where TB : BaseEntity;
+        Task<DualNeoRelationBoundObjects<TA, TB>> RemoveRelation<TA, TB>(TA entityA, NEO relation, TB entityB)
+            where TA : BaseEntity where TB : BaseEntity; 
     }
 }

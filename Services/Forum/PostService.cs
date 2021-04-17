@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;
@@ -17,17 +18,19 @@ namespace Services.Forum
         private readonly ISQLRepository<Post> _postIsqlRepository;
         private readonly ISQLRepository<UserLikedPost> _userLikedIsqlRepository;
         private readonly ISQLRepository<UserDislikedPost> _userDislikedIsqlRepository;
+        private readonly INeoRepository<Post> _neoRepository;
 
-        public PostService(IAuthenticationService authenticationService, ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserLikedPost> userLikedIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository)
+        public PostService(IAuthenticationService authenticationService, ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserLikedPost> userLikedIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, INeoRepository<Post> neoRepository)
         {
             _authenticationService = authenticationService;
             _postIsqlRepository = postIsqlRepository;
             _userLikedIsqlRepository = userLikedIsqlRepository;
             _userDislikedIsqlRepository = userDislikedIsqlRepository;
+            _neoRepository = neoRepository;
         }
 
         /**
-         * Creates a post using an user Id
+         * Creates a post using an user EntityId
          * Returns the uploaded post
          */
         public async Task<Post> CreatePost(Post post, string token)
@@ -41,12 +44,21 @@ namespace Services.Forum
             // Add user to post
             post.UploadedByUser = tokenUser;
 
-            // Inserts post into database and returns the newly created post
-            return  await _postIsqlRepository.Insert(post);
+            // Inserts post into database
+            var insertedPost = await _postIsqlRepository.Insert(post);
+
+            // insert into graph database
+            await _neoRepository.Insert(insertedPost);
+
+            // Insert relation into graph database
+            await _neoRepository.CreateRelation(tokenUser, NEO.POSTED, insertedPost);
+
+            // returns the newly created post
+            return insertedPost;
         }
 
         /**
-         * Updates a post using post Id
+         * Updates a post using post EntityId
          * Returns updated post
          */
         public async Task<Post> UpdatePost(Guid postId, Post post, string token)
@@ -108,8 +120,14 @@ namespace Services.Forum
                 throw new NoPermissionException("delete");
             }
 
-            // Updates post in database and returns the updated post
-            return await _postIsqlRepository.Delete(foundPost);
+            // Deletes post in database
+            var deletedPost = await _postIsqlRepository.Delete(foundPost); 
+
+            //Deletes post in graph database
+            await _neoRepository.Delete(deletedPost);
+
+            // returns the deleted post
+            return deletedPost;
         }
 
         /**
@@ -194,6 +212,9 @@ namespace Services.Forum
             // Update post
             await _postIsqlRepository.Update(foundPost);
 
+            // Insert relation into graph database
+            await _neoRepository.CreateRelation(tokenUser, NEO.LIKED, foundPost);
+
             // Return updated post
             return foundPost;
         }
@@ -239,6 +260,9 @@ namespace Services.Forum
 
             // Update post
             await _postIsqlRepository.Update(foundPost);
+
+            // Insert relation into graph database
+            await _neoRepository.CreateRelation(tokenUser, NEO.DISLIKED, foundPost);
 
             // Return updated post
             return foundPost;
@@ -286,6 +310,9 @@ namespace Services.Forum
             // Update post
             await _postIsqlRepository.Update(foundPost);
 
+            // Insert relation into graph database
+            await _neoRepository.CreateRelation(tokenUser, NEO.VIEWED, foundPost);
+
             // Return updated post
             return foundPost;
         }
@@ -325,6 +352,9 @@ namespace Services.Forum
             // Remove like from post
             await _userLikedIsqlRepository.Delete(foundLikedPost);
 
+            // Removes relation from graph database
+            await _neoRepository.RemoveRelation(tokenUser, NEO.LIKED, foundPost);
+
             // Return updated post
             return foundPost;
         }
@@ -363,6 +393,9 @@ namespace Services.Forum
 
             // Remove dislike from post
             await _userDislikedIsqlRepository.Delete(foundDislikedPost);
+
+            // Removes relation from graph database
+            await _neoRepository.RemoveRelation(tokenUser, NEO.DISLIKED, foundPost);
 
             // Return updated post
             return foundPost;
