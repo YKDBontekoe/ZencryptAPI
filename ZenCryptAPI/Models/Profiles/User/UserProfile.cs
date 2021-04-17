@@ -16,10 +16,10 @@ namespace ZenCryptAPI.Models.Profiles.User
         /// </summary>
         public UserProfile()
         {
-            CreateMap<Domain.Entities.User.User, LoginUserModel>();
-            CreateMap<Domain.Entities.User.User, RegisterUserModel>();
-            CreateMap<Domain.Entities.User.User, UserModel>();
-            CreateMap<RegisterUserDTO, Domain.Entities.User.User>();
+            CreateMap<Domain.Entities.SQL.User.User, LoginUserModel>();
+            CreateMap<Domain.Entities.SQL.User.User, RegisterUserModel>();
+            CreateMap<Domain.Entities.SQL.User.User, UserModel>();
+            CreateMap<RegisterUserDTO, Domain.Entities.SQL.User.User>();
         }
     }
 }

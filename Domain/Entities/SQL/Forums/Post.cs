@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Domain.Entities.User;
+using Domain.Entities.SQL.User;
 
-namespace Domain.Entities.Forums
+namespace Domain.Entities.SQL.Forums
 {
     public class Post : BaseEntity
     {

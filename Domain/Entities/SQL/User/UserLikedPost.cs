@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 
-namespace Domain.Entities.User
+namespace Domain.Entities.SQL.User
 {
     public class UserLikedPost : BaseEntity
     {

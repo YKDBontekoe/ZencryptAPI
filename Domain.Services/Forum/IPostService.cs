@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 
 namespace Domain.Services.Forum
 {

@@ -1,20 +1,18 @@
-﻿using Domain.Entities;
-using Domain.Services;
-using Infrastructure.EF.Context;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Domain.Services.Repository;
+using Domain.Entities;
+using Domain.Services.Repositories;
+using Infrastructure.EF.Context;
+using Microsoft.EntityFrameworkCore;
 
-
-namespace Infrastructure.EF
+namespace Infrastructure.EF.Repositories
 {
-    public class SQLRepository<T> : IRepository<T> where T : BaseEntity
+    public class SQLRepository<T> : ISQLRepository<T> where T : BaseEntity
     {
         private readonly DbSet<T> _entities;
-        private readonly EntityContext _entityContext;
+        private readonly EntityContext _entityContext; 
 
         public SQLRepository(EntityContext entityContext)
         {

@@ -17,8 +17,12 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Domain.Services.Forum;
-using Domain.Services.Repository;
+using Domain.Services.Repositories;
 using Domain.Services.User;
+using Infrastructure.EF.Repositories;
+using Microsoft.Extensions.Options;
+using Neo4jClient;
+using Newtonsoft.Json.Serialization;
 using Services.Forum;
 using Services.User;
 
@@ -54,8 +58,17 @@ namespace ZenCryptAPI
                     };
                 });
 
+            var neo4JClient = new GraphClient(new Uri(Configuration.GetConnectionString("neo4jUrl")))
+            {
+                JsonContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            neo4JClient.ConnectAsync().Wait();
+
             services.AddSingleton(Configuration);
-            services.AddScoped(typeof(IRepository<>), typeof(SQLRepository<>));
+            services.AddSingleton<IGraphClient>(neo4JClient);
+            services.AddScoped(typeof(ISQLRepository<>), typeof(SQLRepository<>));
+            services.AddScoped(typeof(INeoRepository<>), typeof(NeoRepository<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();

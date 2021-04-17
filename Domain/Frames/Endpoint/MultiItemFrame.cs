@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Domain.Frames
+namespace Domain.Frames.Endpoint
 {
     public class MultiItemFrame<T>
     {

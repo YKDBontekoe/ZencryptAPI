@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domain.Frames
+namespace Domain.Frames.Endpoint
 {
     public class SingleItemFrame<T>
     {

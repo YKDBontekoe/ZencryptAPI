@@ -44,7 +44,7 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_Post_User_UploadedUserId",
                         column: x => x.UploadedUserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateTable(
@@ -66,13 +66,13 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_Comment_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id",
+                        principalColumn: "EntityId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Comment_User_UploadedUserId",
                         column: x => x.UploadedUserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateTable(
@@ -93,12 +93,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserDislikedPost_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                     table.ForeignKey(
                         name: "FK_UserDislikedPost_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateTable(
@@ -119,12 +119,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserLikedPost_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                     table.ForeignKey(
                         name: "FK_UserLikedPost_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateTable(
@@ -145,12 +145,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserViewedPost_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                     table.ForeignKey(
                         name: "FK_UserViewedPost_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateTable(
@@ -171,12 +171,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserDislikedComment_Comment_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comment",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                     table.ForeignKey(
                         name: "FK_UserDislikedComment_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateTable(
@@ -197,12 +197,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserLikedComment_Comment_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comment",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                     table.ForeignKey(
                         name: "FK_UserLikedComment_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "Id");
+                        principalColumn: "EntityId");
                 });
 
             migrationBuilder.CreateIndex(
