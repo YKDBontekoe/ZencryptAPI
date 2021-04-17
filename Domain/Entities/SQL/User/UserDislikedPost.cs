@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities.Forums;
 
-namespace Domain.Entities.User
+namespace Domain.Entities.SQL.User
 {
     public class UserDislikedPost : BaseEntity
     {

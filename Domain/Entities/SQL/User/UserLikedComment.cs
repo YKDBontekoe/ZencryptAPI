@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 
-namespace Domain.Entities.User
+namespace Domain.Entities.SQL.User
 {
-    public class UserDislikedComment : BaseEntity
+    public class UserLikedComment : BaseEntity
     {
         public Guid UserId { get; set; }
         public Guid CommentId { get; set; }

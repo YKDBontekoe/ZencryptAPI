@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 using Domain.Exceptions;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.DataTransferObjects.Forums.Comment;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 using Domain.Exceptions;
 using Domain.Frames.Endpoint;
 using Domain.Services.Forum;

@@ -1,8 +1,8 @@
-﻿using Domain.Entities.User;
-using Infrastructure.EF.EntityMapping;
+﻿using Infrastructure.EF.EntityMapping;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
+using Domain.Entities.SQL.User;
 
 namespace Infrastructure.EF.Context
 {

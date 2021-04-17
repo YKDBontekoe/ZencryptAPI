@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities.User;
+using Domain.Entities.SQL.User;
 
-namespace Domain.Entities.Forums
+namespace Domain.Entities.SQL.Forums
 {
     public class Comment : BaseEntity
     {

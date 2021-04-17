@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Domain.DataTransferObjects.Forums.Post;
-using Domain.Entities.Forums;
 using Domain.Exceptions;
 using Domain.Services.Forum;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Entities.SQL.Forums;
 using Domain.Frames.Endpoint;
 using ZenCryptAPI.Models.Data.Post;
 

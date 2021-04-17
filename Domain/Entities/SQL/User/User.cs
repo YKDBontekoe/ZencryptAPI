@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 
-namespace Domain.Entities.User
+namespace Domain.Entities.SQL.User
 {
     public class User : BaseEntity
     {

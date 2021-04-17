@@ -6,7 +6,7 @@ using AutoMapper;
 using Domain.DataTransferObjects.Forums;
 using Domain.DataTransferObjects.Forums.Comment;
 using Domain.DataTransferObjects.Forums.Post;
-using Domain.Entities.Forums;
+using Domain.Entities.SQL.Forums;
 using ZenCryptAPI.Models.Data.Comment;
 using ZenCryptAPI.Models.Data.Post;
 

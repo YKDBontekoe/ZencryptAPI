@@ -16,12 +16,14 @@ namespace Services.User
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfiguration _config;
-        private readonly ISQLRepository<Domain.Entities.User.User> _userIsqlRepository;
+        private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
+        private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
 
-        public AuthenticationService(IConfiguration config, ISQLRepository<Domain.Entities.User.User> userIsqlRepository)
+        public AuthenticationService(IConfiguration config, ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
         {
             _config = config;
-            _userIsqlRepository = userIsqlRepository;
+            _userSqlRepository = userSqlRepository;
+            _userNeoRepository = userNeoRepository;
         }
 
 
@@ -63,7 +65,7 @@ namespace Services.User
         /*
          * Reads given token and returns id of user
          */
-        public Task<Domain.Entities.User.User> GetUserFromToken(string token)
+        public Task<Domain.Entities.SQL.User.User> GetUserFromToken(string token)
         {
             //Create json token handler
             var handler = new JwtSecurityTokenHandler();
@@ -89,7 +91,7 @@ namespace Services.User
                 try
                 {
                     //Returns parsed token
-                    return _userIsqlRepository.Get(Guid.Parse(claims.Claims.ToArray()[0].Value));
+                    return _userSqlRepository.Get(Guid.Parse(claims.Claims.ToArray()[0].Value));
                 }
                 catch
                 {
@@ -108,7 +110,7 @@ namespace Services.User
          * Creates a json web token based on a given user at @param
          * Returns token as a string
          */
-        public string GetJsonWebToken(Domain.Entities.User.User user)
+        public string GetJsonWebToken(Domain.Entities.SQL.User.User user)
         {
             //Retrieve security key from app settings config file
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
@@ -135,10 +137,10 @@ namespace Services.User
          * Authenticates given user in database
          * Returns user result from database
          */
-        public async Task<Domain.Entities.User.User> AuthenticateUser(BaseUserDTO user)
+        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(BaseUserDTO user)
         {
             // Find user in database by email
-            var dbUsers = await _userIsqlRepository.Filter(u => u.Email == user.Email);
+            var dbUsers = await _userSqlRepository.Filter(u => u.Email == user.Email);
 
             // Retrieve first user
             // Emails are always unique and so there wil never be more than 1 result
@@ -162,10 +164,10 @@ namespace Services.User
          * Insert user into database
          * Returns inserted user from database
          */
-        public async Task<Domain.Entities.User.User> InsertUser(Domain.Entities.User.User user)
+        public async Task<Domain.Entities.SQL.User.User> InsertUser(Domain.Entities.SQL.User.User user)
         {
             // Find user by email in database
-            var emailUserResult = await _userIsqlRepository.Filter(u => u.Email == user.Email);
+            var emailUserResult = await _userSqlRepository.Filter(u => u.Email == user.Email);
 
             // Check if user exists in database
             if (emailUserResult.Any())
@@ -176,17 +178,21 @@ namespace Services.User
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-            // Insert user into database
-            await _userIsqlRepository.Insert(user);
+            // Insert user into SQL database
+            await _userSqlRepository.Insert(user);
 
             // Saves user to database
-            await _userIsqlRepository.SaveChanges();
+            await _userSqlRepository.SaveChanges();
 
             // Find inserted user by email
-            var insertedUser = await _userIsqlRepository.Filter(u => u.Email == user.Email);
+            var insertedUserFound = await _userSqlRepository.Filter(u => u.Email == user.Email);
+
+            // Insert user into neo4j database
+            var insertedUser = insertedUserFound.FirstOrDefault();
+            await _userNeoRepository.Insert(insertedUser);
 
             // Returns found user
-            return insertedUser.FirstOrDefault();
+            return insertedUser;
         }
     }
 }

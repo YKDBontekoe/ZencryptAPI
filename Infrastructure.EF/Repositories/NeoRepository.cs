@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Domain.Entities.Neo;
 using Domain.Enums;
+using Domain.Exceptions;
 using Domain.Frames.BoundObjects;
 using Domain.Services.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -15,16 +17,19 @@ namespace Infrastructure.EF.Repositories
     public class NeoRepository<T> : INeoRepository<T> where T : BaseEntity
     {
         private readonly IGraphClient _client;
+        private readonly string _objName = typeof(T).Name;
+        private readonly ISQLRepository<T> _sqlRepository;
 
-        public NeoRepository(NeoServerConfiguration _configuration)
+        public NeoRepository(IGraphClient client, ISQLRepository<T> sqlRepository)
         {
-            _client.ConnectAsync(_configuration);
+            _client = client;
+            _sqlRepository = sqlRepository;
         }
 
         public Task<IEnumerable<T>> GetAll()
         {
             return _client.Cypher
-                .Match($"(e:{typeof(T)})")
+                .Match($"(e:{_objName})")
                 .Return(e => e.As<T>())
                 .ResultsAsync;
         }
@@ -32,25 +37,26 @@ namespace Infrastructure.EF.Repositories
         public async Task<T> Get(Guid id)
         {
                 var item =  await _client.Cypher
-                .Match($"(item:{typeof(T)})")
+                .Match($"(item:{_objName})")
                 .Where((T item) => item.Id == id)
-                .Return(user => user.As<T>())
+                .Return(user => user.As<NeoEntity>())
                 .ResultsAsync;
 
-                return item.FirstOrDefault();
+                var foundItem = item.FirstOrDefault();
+                
+                // Check if found item is not null
+                if (foundItem == null)
+                {
+                    throw new NotFoundException(_objName + " in neo");
+                }
+
+                return await _sqlRepository.Get(foundItem.Id);
         }
 
         public async Task<T> Insert(T entity)
         {
             await _client.Cypher
-                .Merge("(item:" +  typeof(T) + "{ id: {" + entity.Id + "} })")
-                .OnCreate()
-                .Set("item = {new" + typeof(T) + "}")
-                .WithParams(new
-                {
-                    id = entity.Id,
-                    entityType = typeof(T)
-                })
+                .Merge("(item:" + _objName + "{ Id : \"" + entity.Id + "\", entityType: \"" + _objName  + "\" })")
                 .ExecuteWithoutResultsAsync();
 
             return entity;
@@ -64,7 +70,7 @@ namespace Infrastructure.EF.Repositories
         public async Task<T> Delete(T entity)
         {
             await _client.Cypher
-                .OptionalMatch($"(item:{typeof(T)})<-[r]-()")
+                .OptionalMatch($"(item:{_objName})<-[r]-()")
                 .Where((T item) => item.Id == entity.Id)
                 .Delete("r, item")
                 .ExecuteWithoutResultsAsync();
