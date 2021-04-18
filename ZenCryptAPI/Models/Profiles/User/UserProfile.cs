@@ -2,6 +2,7 @@
 using Domain.DataTransferObjects;
 using Domain.DataTransferObjects.User;
 using ZenCryptAPI.Models.Data.User;
+using ZenCryptAPI.Models.Data.User.Types;
 
 
 namespace ZenCryptAPI.Models.Profiles.User
@@ -18,7 +19,9 @@ namespace ZenCryptAPI.Models.Profiles.User
         {
             CreateMap<Domain.Entities.SQL.User.User, LoginUserModel>();
             CreateMap<Domain.Entities.SQL.User.User, RegisterUserModel>();
-            CreateMap<Domain.Entities.SQL.User.User, UserModel>();
+            CreateMap<Domain.Entities.SQL.User.User, GeneralUserModel>();
+            CreateMap<Domain.Entities.SQL.User.User, MinimalUserModel>();
+            CreateMap<Domain.Entities.SQL.User.User, ProfileUserModel>();
             CreateMap<RegisterUserDTO, Domain.Entities.SQL.User.User>();
         }
     }

@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
 using Domain.Entities;
 using Domain.Entities.SQL.User;
+using Domain.Enums;
 using Domain.Frames.Endpoint;
 using Domain.Services.User;
+using Domain.Types.User;
 using ZenCryptAPI.Models.Data.User;
+using ZenCryptAPI.Models.Data.User.Types;
 
 namespace ZenCryptAPI.Controllers
 {
@@ -20,11 +23,13 @@ namespace ZenCryptAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IAuthenticationService _authService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public UsersController(IAuthenticationService authService, IMapper mapper)
+        public UsersController(IAuthenticationService authService, IUserService userService, IMapper mapper)
         {
             _authService = authService;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -85,6 +90,52 @@ namespace ZenCryptAPI.Controllers
                 // Wrap the userModel object to an api frame
                 var returnable = new SingleItemFrame<RegisterUserModel>
                 { Message = $"Welcome back {rUser.FirstName}! ", Result = userModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        // GET: api/<UserController>/:id
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id, UserType userType)
+        {
+            try
+            {
+                
+                switch (userType)
+                {
+                    case UserType.GENERAL:
+                    case UserType.MINIMAL:
+                    {
+                        await _userService.GetUserById<User>(id, userType);
+                    } break;
+
+                    case UserType.PROFILE:
+                    {
+                        await _userService.GetUserById<ProfileUser>(id, userType);
+                    }
+                        break;
+                    default:
+                    {
+                        await _userService.GetUserById<User>(id, userType);
+                    }break;
+                }
+
+                // Get user
+                var foundUser = await _userService.GetUserById(id);
+
+                // Map posts
+                var userModel = _mapper.Map<GeneralUserModel>(foundUser);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<GeneralUserModel>()
+                    { Message = $"Found user", Result = userModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
