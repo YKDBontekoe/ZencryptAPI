@@ -17,7 +17,7 @@ namespace Infrastructure.EF.Migrations
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -34,7 +34,7 @@ namespace Infrastructure.EF.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UploadedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -44,7 +44,7 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_Post_User_UploadedUserId",
                         column: x => x.UploadedUserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -56,7 +56,7 @@ namespace Infrastructure.EF.Migrations
                     UploadedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -66,13 +66,13 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_Comment_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "EntityId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Comment_User_UploadedUserId",
                         column: x => x.UploadedUserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -83,7 +83,7 @@ namespace Infrastructure.EF.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -93,12 +93,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserDislikedPost_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserDislikedPost_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -109,7 +109,7 @@ namespace Infrastructure.EF.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -119,12 +119,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserLikedPost_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserLikedPost_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -135,7 +135,7 @@ namespace Infrastructure.EF.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -145,12 +145,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserViewedPost_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserViewedPost_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -161,7 +161,7 @@ namespace Infrastructure.EF.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -171,12 +171,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserDislikedComment_Comment_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comment",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserDislikedComment_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -187,7 +187,7 @@ namespace Infrastructure.EF.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -197,12 +197,12 @@ namespace Infrastructure.EF.Migrations
                         name: "FK_UserLikedComment_Comment_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comment",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserLikedComment_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "EntityId");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
