@@ -128,7 +128,7 @@ namespace ZenCryptAPI.Controllers
                 }
 
                 // Get user
-                var foundUser = await _userService.GetUserById(id);
+                var foundUser = await _userService.GetUserById<User>(id, userType);
 
                 // Map posts
                 var userModel = _mapper.Map<GeneralUserModel>(foundUser);
