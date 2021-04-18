@@ -19,6 +19,9 @@ namespace Services.User
         private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
         private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
 
+        private readonly string _jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
+                                         throw new InvalidOperationException("No jwt token provided!");
+
         public AuthenticationService(IConfiguration config, ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
         {
             _config = config;
@@ -38,7 +41,7 @@ namespace Services.User
             var tokenHandler = new JwtSecurityTokenHandler();
 
             //Retrieve security key from app settings config file
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtKey));
 
             try
             {
@@ -71,7 +74,7 @@ namespace Services.User
             var handler = new JwtSecurityTokenHandler();
 
             //Retrieve security key from app settings config file
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtKey));
 
             try
             {
@@ -113,7 +116,7 @@ namespace Services.User
         public string GetJsonWebToken(Domain.Entities.SQL.User.User user)
         {
             //Retrieve security key from app settings config file
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtKey));
 
             //Assign signing credentials using HmacSha256 as hashing algorithm
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
