@@ -41,7 +41,7 @@ namespace ZenCryptAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<EntityContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("CMDB")).UseLazyLoadingProxies());
+                options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ?? throw new InvalidOperationException("No sql connection string provided!")).UseLazyLoadingProxies());
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -54,11 +54,11 @@ namespace ZenCryptAPI
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = Configuration["Jwt:Issuer"],
                         ValidAudience = Configuration["Jwt:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ?? throw new InvalidOperationException("No jwt token provided!")))
                     };
                 });
 
-            var neo4JClient = new GraphClient(new Uri(Configuration.GetConnectionString("neo4jUrl")))
+            var neo4JClient = new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ?? throw new InvalidOperationException("No neo4j connection string provided!"))) 
             {
                 JsonContractResolver = new CamelCasePropertyNamesContractResolver()
             };
