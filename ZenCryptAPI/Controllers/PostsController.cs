@@ -38,7 +38,7 @@ namespace ZenCryptAPI.Controllers
                 var foundPosts = await _postService.GetPosts();
 
                 // Map posts
-                var postModel = _mapper.Map<IEnumerable<MultiPostModel>>(foundPosts);
+                var postModel = _mapper.Map<MultiPostModel[]>(foundPosts.ToArray());
 
                 // Wrap the userModel object to an api frame
                 var returnable = new MultiItemFrame<MultiPostModel>()

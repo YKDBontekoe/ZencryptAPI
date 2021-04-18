@@ -160,7 +160,7 @@ namespace Services.Forum
             var foundPosts = await _postIsqlRepository.GetAll();
 
             // Check if list is not empty
-            if (foundPosts.Any())
+            if (!foundPosts.Any())
             {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("posts");

@@ -31,6 +31,9 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
+        "ASPNETCORE_JWT_TOKEN": "DMJFnaafhgnmqFaagvd",
+        "ASPNETCORE_NEO_CONNECTION_STRING": "http://ykdproxy.live:30008/",
+        "ASPNETCORE_SQL_CONNECTION_STRING": "Data Source=ykdproxy.live,30004;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;",
         "ASPNETCORE_URLS": "https://+:443;http://+:80",
         "ASPNETCORE_HTTPS_PORT": "44360"
       },
