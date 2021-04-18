@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace ZenCryptAPI.Models.Data.User
 {
-    public class RegisterUserModel
+    public class RegisterUserModel : BaseUserModel
     {
-        public Guid Id { get; set; }
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Entities;
+using Domain.Enums;
 using Domain.Services.Repositories;
 using Domain.Services.User;
 
@@ -28,9 +30,33 @@ namespace Services.User
          * Finds user by user id
          * Returns user
          */
-        public Task<Domain.Entities.SQL.User.User> GetUserById(Guid userId)
+        public async Task<T> GetUserById<T>(Guid userId, UserType userType)
         {
-            return this._userSqlRepository.Get(userId);
+            switch (userType)
+            {
+                case UserType.GENERAL:
+                case UserType.MINIMAL:
+                {
+                    return (T)(object) await _userSqlRepository.Get(userId);
+                }
+
+                case UserType.PROFILE:
+                {
+                   // await _neoRepository.GetUserById<ProfileUser>(id, userType);
+                }
+                    break;
+                default:
+                {
+                    return (T)(object) await _userSqlRepository.Get(userId);
+                    }
+            }
+
+            return (T)(object)null;
+        }
+
+        public Task<Domain.Entities.SQL.User.User> GetUsersByUserName(string userName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,10 +1,7 @@
-﻿using System;
-
-namespace ZenCryptAPI.Models.Data.User
+﻿namespace ZenCryptAPI.Models.Data.User.Types
 {
-    public class UserModel
+    public class GeneralUserModel : BaseUserModel
     {
-        public Guid Id { get; set; }
         public string Email { get; set; }
         public int TotalLikes { get; set; }
         public int TotalPosts { get; set; }
