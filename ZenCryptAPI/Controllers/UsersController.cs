@@ -20,11 +20,13 @@ namespace ZenCryptAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IAuthenticationService _authService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public UsersController(IAuthenticationService authService, IMapper mapper)
+        public UsersController(IAuthenticationService authService, IUserService userService, IMapper mapper)
         {
             _authService = authService;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -85,6 +87,32 @@ namespace ZenCryptAPI.Controllers
                 // Wrap the userModel object to an api frame
                 var returnable = new SingleItemFrame<RegisterUserModel>
                 { Message = $"Welcome back {rUser.FirstName}! ", Result = userModel };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        // GET: api/<UserController>/:id
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            try
+            {
+                // Get user
+                var foundUser = await _userService.GetUserById(id);
+
+                // Map posts
+                var userModel = _mapper.Map<UserModel>(foundUser);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<UserModel>()
+                    { Message = $"Found user", Result = userModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);

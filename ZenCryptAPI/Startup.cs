@@ -70,6 +70,7 @@ namespace ZenCryptAPI
             services.AddScoped(typeof(ISQLRepository<>), typeof(SQLRepository<>));
             services.AddScoped(typeof(INeoRepository<>), typeof(NeoRepository<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
 
