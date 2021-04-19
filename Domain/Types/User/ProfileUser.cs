@@ -10,7 +10,7 @@ namespace Domain.Types.User
     public class ProfileUser
     {
         public Entities.SQL.User.User User { get; set; }
-        public OneToManyBound<Entities.SQL.User.User, Entities.SQL.User.User> Following { get; set; }   
-        public OneToManyBound<Entities.SQL.User.User, Entities.SQL.User.User> FollowedBy { get; set; }      
+        public IEnumerable<Entities.SQL.User.User> Following { get; set; }   
+        public IEnumerable<Entities.SQL.User.User> FollowedBy { get; set; }      
     }
 }

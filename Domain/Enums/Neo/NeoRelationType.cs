@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Enums
+namespace Domain.Enums.Neo
 {
-    public enum NEO
+    public enum NeoRelationType
     {
-        LIKED, DISLIKED, FOLLOWED, VIEWED, POSTED
+        LEFT, RIGHT, INNER, OUTER, SHORTEST_PATH
     }
 }

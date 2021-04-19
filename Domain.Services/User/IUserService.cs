@@ -11,7 +11,8 @@ namespace Domain.Services.User
     public interface IUserService
     {
         Task<Entities.SQL.User.User> GetUserByEmail(string userEmail);
-        Task<T> GetUserById<T>(Guid userId, UserType userType); 
+        Task<TA> GetUserById<TA, TB, TC>(Guid userId, UserType userType)
+           where TB : BaseEntity where TC : BaseEntity;
         Task<Entities.SQL.User.User> GetUsersByUserName(string userName);
     }
 }

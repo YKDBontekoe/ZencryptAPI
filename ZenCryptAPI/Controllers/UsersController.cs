@@ -1,17 +1,14 @@
 ﻿using AutoMapper;
-using Domain.DataTransferObjects;
-using Domain.Services;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using Domain.DataTransferObjects.User;
-using Domain.Entities;
 using Domain.Entities.SQL.User;
 using Domain.Enums;
 using Domain.Frames.Endpoint;
 using Domain.Services.User;
 using Domain.Types.User;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 using ZenCryptAPI.Models.Data.User;
 using ZenCryptAPI.Models.Data.User.Types;
 
@@ -107,38 +104,51 @@ namespace ZenCryptAPI.Controllers
         {
             try
             {
-                
+                var message = "Found User";
                 switch (userType)
                 {
                     case UserType.GENERAL:
                     case UserType.MINIMAL:
-                    {
-                        await _userService.GetUserById<User>(id, userType);
-                    } break;
+                        {
+                            var foundUser = await _userService.GetUserById<User, User, User>(id, userType);
+
+                            if (UserType.MINIMAL == userType)
+                            {
+                                return Ok(new SingleItemFrame<MinimalUserModel>
+                                {
+                                    Message = message,
+                                    Result = _mapper.Map<MinimalUserModel>(foundUser)
+                                });
+                            }
+
+                            return Ok(new SingleItemFrame<GeneralUserModel>
+                            {
+                                Message = message,
+                                Result = _mapper.Map<GeneralUserModel>(foundUser)
+                            });
+
+                        }
 
                     case UserType.PROFILE:
-                    {
-                        await _userService.GetUserById<ProfileUser>(id, userType);
-                    }
-                        break;
+                        {
+                            var foundUser = await _userService.GetUserById<ProfileUser, User, User>(id, userType);
+                            return Ok(new SingleItemFrame<ProfileUserModel>
+                            {
+                                Message = message,
+                                Result = _mapper.Map<ProfileUserModel>(foundUser)
+                            });
+                        }
                     default:
-                    {
-                        await _userService.GetUserById<User>(id, userType);
-                    }break;
+                        {
+                            var foundUser = await _userService.GetUserById<User, User, User>(id, userType);
+
+                            return Ok(new SingleItemFrame<GeneralUserModel>
+                            {
+                                Message = message,
+                                Result = _mapper.Map<GeneralUserModel>(foundUser)
+                            });
+                        }
                 }
-
-                // Get user
-                var foundUser = await _userService.GetUserById<User>(id, userType);
-
-                // Map posts
-                var userModel = _mapper.Map<GeneralUserModel>(foundUser);
-
-                // Wrap the userModel object to an api frame
-                var returnable = new SingleItemFrame<GeneralUserModel>()
-                    { Message = $"Found user", Result = userModel };
-
-                // Returns code 200 and the userModel
-                return Ok(returnable);
             }
             catch (Exception e)
             {
