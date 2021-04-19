@@ -9,5 +9,6 @@ namespace ZenCryptAPI.Models.Data.User
     {
         public Guid Id { get; set; }
         public string UserName { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

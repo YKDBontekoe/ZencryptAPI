@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
 using Domain.Enums;
+using Domain.Enums.Neo;
 using Domain.Exceptions;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;
@@ -51,7 +52,7 @@ namespace Services.Forum
             await _neoRepository.Insert(insertedPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEO.POSTED, insertedPost);
+            await _neoRepository.CreateRelation(tokenUser, NEORelation.POSTED, insertedPost);
 
             // returns the newly created post
             return insertedPost;
@@ -213,7 +214,7 @@ namespace Services.Forum
             await _postIsqlRepository.Update(foundPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEO.LIKED, foundPost);
+            await _neoRepository.CreateRelation(tokenUser, NEORelation.LIKED, foundPost);
 
             // Return updated post
             return foundPost;
@@ -262,7 +263,7 @@ namespace Services.Forum
             await _postIsqlRepository.Update(foundPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEO.DISLIKED, foundPost);
+            await _neoRepository.CreateRelation(tokenUser, NEORelation.DISLIKED, foundPost);
 
             // Return updated post
             return foundPost;
@@ -311,7 +312,7 @@ namespace Services.Forum
             await _postIsqlRepository.Update(foundPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEO.VIEWED, foundPost);
+            await _neoRepository.CreateRelation(tokenUser, NEORelation.VIEWED, foundPost);
 
             // Return updated post
             return foundPost;
@@ -353,7 +354,7 @@ namespace Services.Forum
             await _userLikedIsqlRepository.Delete(foundLikedPost);
 
             // Removes relation from graph database
-            await _neoRepository.RemoveRelation(tokenUser, NEO.LIKED, foundPost);
+            await _neoRepository.RemoveRelation(tokenUser, NEORelation.LIKED, foundPost);
 
             // Return updated post
             return foundPost;
@@ -395,7 +396,7 @@ namespace Services.Forum
             await _userDislikedIsqlRepository.Delete(foundDislikedPost);
 
             // Removes relation from graph database
-            await _neoRepository.RemoveRelation(tokenUser, NEO.DISLIKED, foundPost);
+            await _neoRepository.RemoveRelation(tokenUser, NEORelation.DISLIKED, foundPost);
 
             // Return updated post
             return foundPost;
