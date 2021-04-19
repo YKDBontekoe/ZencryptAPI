@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Domain.Exceptions;
 using ZenCryptAPI.Models.Data.User;
 using ZenCryptAPI.Models.Data.User.Types;
 
@@ -98,6 +99,56 @@ namespace ZenCryptAPI.Controllers
             }
         }
 
+        [HttpPost("{followUserId}/follow")]
+        public async Task<IActionResult> Follow(Guid followUserId)    
+        {
+            try
+            {
+                // Create follow relationship
+                var user = await _userService.FollowUser(GetBearerToken(), followUserId);
+
+                // Map registerDTO to User
+                var mapUser = _mapper.Map<MinimalUserModel>(user);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<MinimalUserModel>
+                    { Message = $"Followed {mapUser.UserName}! ", Result = mapUser };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        [HttpDelete("{followUserId}/unfollow")]
+        public async Task<IActionResult> Unfollow(Guid followUserId)    
+        {
+            try
+            {
+                // Remove follow relationship
+                var user = await _userService.UnFollowUser(GetBearerToken(), followUserId);
+
+                // Map registerDTO to User
+                var mapUser = _mapper.Map<MinimalUserModel>(user);
+
+                // Wrap the userModel object to an api frame
+                var returnable = new SingleItemFrame<MinimalUserModel>
+                    { Message = $"Un- followed {mapUser.UserName}! ", Result = mapUser };
+
+                // Returns code 200 and the userModel
+                return Ok(returnable);
+            }
+            catch (Exception e)
+            {
+                // Returns 404 with exception message
+                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
         // GET: api/<UserController>/:id
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id, UserType userType)
@@ -154,6 +205,19 @@ namespace ZenCryptAPI.Controllers
             {
                 // Returns 404 with exception message
                 return NotFound(new SingleItemFrame<object> { Message = e.Message });
+            }
+        }
+
+        private string GetBearerToken()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("Authorization", out var bearerToken);
+                return bearerToken.ToString().Split(" ")[1];
+            }
+            catch
+            {
+                throw new InvalidTokenException();
             }
         }
     }

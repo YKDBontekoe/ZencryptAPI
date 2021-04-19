@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.Entities.SQL.Forums;
 using Domain.Enums;
 using Domain.Enums.Neo;
+using Domain.Exceptions;
 using Domain.Services.Repositories;
 using Domain.Services.User;
 using Domain.Types.User;
@@ -17,11 +18,13 @@ namespace Services.User
     {
         private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
         private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
+        private readonly IAuthenticationService _authenticationService;
 
-        public UserService(ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
+        public UserService(ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository, IAuthenticationService authenticationService)
         {
             _userSqlRepository = userSqlRepository;
             _userNeoRepository = userNeoRepository;
+            _authenticationService = authenticationService;
         }
 
         public Task<Domain.Entities.SQL.User.User> GetUserByEmail(string userEmail)
@@ -87,6 +90,69 @@ namespace Services.User
         public Task<Domain.Entities.SQL.User.User> GetUsersByUserName(string userName)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Domain.Entities.SQL.User.User> FollowUser(string userToken, Guid userIdToFollow)
+        {
+            // Validates Token
+            ValidateToken(userToken);
+
+            // Find user
+            var foundUser = await _userSqlRepository.Get(userIdToFollow);
+
+            // Check if post is null
+            if (foundUser == null)
+            {
+                // Throw exception if there aren't any users
+                throw new NotFoundException("user");
+            }
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(userToken);
+
+            // Create relation in graph database
+            await _userNeoRepository.CreateRelation(tokenUser, NEORelation.FOLLOWED, foundUser);
+
+            // Return followed user
+            return foundUser;
+        }
+
+        public async Task<Domain.Entities.SQL.User.User> UnFollowUser(string userToken, Guid userIdToFollow)
+        {
+            // Validates Token
+            ValidateToken(userToken);
+
+            // Find user
+            var foundUser = await _userSqlRepository.Get(userIdToFollow);
+
+            // Check if post is null
+            if (foundUser == null)
+            {
+                // Throw exception if there aren't any users
+                throw new NotFoundException("user");
+            }
+
+            // Get user from token
+            var tokenUser = await _authenticationService.GetUserFromToken(userToken);
+
+            // Remove relation in graph database
+            await _userNeoRepository.RemoveRelation(tokenUser, NEORelation.FOLLOWED, foundUser);
+
+            // Return un- followed user
+            return foundUser;
+        }
+
+        private void ValidateToken(string token)
+        {
+            // Token validation
+            var isValidToken = _authenticationService.IsValidToken(token);
+
+            // Check if token is valid
+            if (!isValidToken)
+            {
+                // Throw an exception if token is invalid
+                throw new InvalidTokenException();
+            }
         }
     }
 }

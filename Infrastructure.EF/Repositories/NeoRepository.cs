@@ -137,7 +137,7 @@ namespace Infrastructure.EF.Repositories
         public async Task<DualRelationBoundObjects<TA, TB>> RemoveRelation<TA, TB>(TA entityA, NEORelation relation, TB entityB) where TA : BaseEntity where TB : BaseEntity
         {
             await _client.Cypher
-                .Match($"(item1:{typeof(TA).Name})-[r]->({typeof(TB).Name}) WHERE (item1.EntityId = '" + entityA.Id + "') AND (item2.EntityId = '" + entityB.Id + "') AND type(r) = ('" + relation + "')")
+                .Match($"(item1:{typeof(TA).Name})-[r]->(item2:{typeof(TB).Name}) WHERE (item1.EntityId = '" + entityA.Id + "') AND (item2.EntityId = '" + entityB.Id + "') AND type(r) = ('" + relation + "')")
                 .Delete("r").ExecuteWithoutResultsAsync();
 
             var itemRelationObject = new DualRelationBoundObjects<TA, TB> 
