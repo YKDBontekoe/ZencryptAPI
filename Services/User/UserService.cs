@@ -49,25 +49,23 @@ namespace Services.User
                 case UserType.PROFILE:
                 {
                     var foundUser = await _userSqlRepository.Get(userId);
-
-                    var oneToManyFollowing = await _userNeoRepository.GetNodeWithRelatedNodes<TB, Domain.Entities.SQL.User.User>(userId, NEORelation.FOLLOWED, NeoRelationType.RIGHT);
-                    var idsFollowing = oneToManyFollowing.ObjectList.Select(c => c.EntityId);
-
                     IEnumerable<Domain.Entities.SQL.User.User> following = new List<Domain.Entities.SQL.User.User>();
-                    if (idsFollowing.Any())
+                    IEnumerable<Domain.Entities.SQL.User.User> followedBy = new List<Domain.Entities.SQL.User.User>();
+                    var oneToManyFollowing = await _userNeoRepository.GetNodeWithRelatedNodes<TB, Domain.Entities.SQL.User.User>(userId, NEORelation.FOLLOWED, NeoRelationType.RIGHT);
+
+                    if (oneToManyFollowing != null)
                     {
-                        following = await this._userSqlRepository.Filter(c => idsFollowing.Any(p => Guid.Parse(p) == c.Id));
+                        var idsFollowing = oneToManyFollowing.ObjectList.Select(c => Guid.Parse(c.EntityId));
+                        var users = await this._userSqlRepository.GetAll();
+                        following = users.Where(c => idsFollowing.Contains(c.Id));
                     }
-                    
 
                     var oneToManyFollowedBy = await _userNeoRepository.GetNodeWithRelatedNodes<TB, Domain.Entities.SQL.User.User>(userId, NEORelation.FOLLOWED, NeoRelationType.LEFT);
-                    var idsFollowedBy = oneToManyFollowedBy.ObjectList.Select(C => C.EntityId);
-
-                    IEnumerable<Domain.Entities.SQL.User.User> followedBy = new List<Domain.Entities.SQL.User.User>();
-                        if (idsFollowedBy.Any())
+                    if (oneToManyFollowedBy != null)
                     {
-                        followedBy = await this._userSqlRepository.Filter(c =>
-                            idsFollowedBy.Any(p => Guid.Parse(p) == c.Id));
+                        var idsFollowedBy = oneToManyFollowedBy.ObjectList.Select(c => Guid.Parse(c.EntityId));
+                        var users = await this._userSqlRepository.GetAll();
+                        followedBy = users.Where(c => idsFollowedBy.Contains(c.Id));
                     }
 
                     var profileUser = new ProfileUser()

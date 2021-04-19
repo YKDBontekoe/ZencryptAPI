@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Neo4j.Driver;
 using Neo4jClient;
 using Neo4jClient.Cypher;
+using Newtonsoft.Json;
 
 namespace Infrastructure.EF.Repositories
 {
@@ -91,25 +92,28 @@ namespace Infrastructure.EF.Repositories
 
         public async Task<OneToManyBoundNeo> GetNodeWithRelatedNodes<TA, TB>(Guid entityId, NEORelation relation, NeoRelationType neoRelationType) where TA : BaseEntity where TB : BaseEntity
         {
-            var result = await 
-            QueryBuilder(NeoRelationType.RIGHT, relation, false, typeof(TA).Name, typeof(TB).Name, entityId.ToString(), null, _client.Cypher)
-                .Return((item1, rel, item2) =>
+            var result =  await
+            QueryBuilder(neoRelationType, relation, false, typeof(TA).Name, typeof(TB).Name, entityId.ToString().ToLower(), null)
+                .Return((item1, item2) =>
                     new {
-                        entity1 = item1.As<NeoEntity>(),
-                        relationShip = rel.As<string>(),
-                        entity2 = item2.As<NeoEntity>()
+                        entityA = item1.As<NeoEntity>(),
+                        entityB = item2.As<NeoEntity>()
                     }
             )
                 .ResultsAsync;
 
-            var oneToManyResult = new OneToManyBoundNeo
+            if (result.Any())
             {
-                ObjectA = result.FirstOrDefault()?.entity1,
-                ObjectList = result.Select(c => c.entity2),
-                RelationShip = relation
-            };
-                
-            return oneToManyResult;
+                var oneToManyResult = new OneToManyBoundNeo
+                {
+                    ObjectA = result.FirstOrDefault().entityA,
+                    ObjectList = result.Select(c => c.entityB),
+                    RelationShip = relation
+                };
+                return oneToManyResult;
+            }
+
+            return null;
         }
 
         public Task<IEnumerable<DualBoundObjects<TA, TB>>> GetNodesWithoutRelation<TA, TB>(TA entityA, TB entityB) where TA : BaseEntity where TB : BaseEntity
@@ -150,43 +154,43 @@ namespace Infrastructure.EF.Repositories
             return itemRelationObject;
         }
 
-        private ICypherFluentQuery QueryBuilder(NeoRelationType relationType, NEORelation relation, bool isOptional, string entityAName, string entityBName, string entityAId, string? entityBId, ICypherFluentQuery queryBuilder)
+        private ICypherFluentQuery QueryBuilder(NeoRelationType relationType, NEORelation relation, bool isOptional, string entityAName, string entityBName, string entityAId, string? entityBId)
         {
             switch (relationType)
             {
                 case NeoRelationType.RIGHT:
                 {
-                    var query = $"(entityA:{entityAName})-[r:{relation}]->(entityB:{entityBName}) WHERE (entityA.EntityId = '{entityAId}')";
+                    var query = $"(item1:{entityAName})-[rel:{relation}]->(item2:{entityBName}) WHERE (item1.EntityId = '{entityAId}')";
 
-                    return isOptional ? queryBuilder.Match(query) : queryBuilder.OptionalMatch(query);
+                    return isOptional ? _client.Cypher.OptionalMatch(query) : _client.Cypher.Match(query);
                 }
 
                 case NeoRelationType.INNER:
                 {
-                    var query = $"(entityA:{entityAName})->[r:]<-(entityB:{entityBName}) WHERE (entityA.EntityId = '{entityAId}' AND entityB.EntityId= '{entityBId}')";
+                    var query = $"(item1:{entityAName})->[rel:]<-(item2:{entityBName}) WHERE (item1.EntityId = '{entityAId}' AND item2.EntityId= '{entityBId}')";
 
-                    return isOptional ? queryBuilder.Match(query) : queryBuilder.OptionalMatch(query);
+                    return isOptional ? _client.Cypher.OptionalMatch(query) : _client.Cypher.Match(query);
                     }
                   
                 case NeoRelationType.OUTER:
                 {
-                    var query = $"(entityA:{entityAName})<-[r:{relation}]->(entityB:{entityBName}) WHERE (entityA.EntityId = '{entityAId}' AND entityB.EntityId= '{entityBId}')";
+                    var query = $"(item1:{entityAName})<-[rel:{relation}]->(item2:{entityBName}) WHERE (item1.EntityId = '{entityAId}' AND item2.EntityId= '{entityBId}')";
 
-                    return isOptional ? queryBuilder.Match(query) : queryBuilder.OptionalMatch(query);
+                    return isOptional ? _client.Cypher.OptionalMatch(query) : _client.Cypher.Match(query);
                     }
                   
                 case NeoRelationType.SHORTEST_PATH:
                 {
-                    var query = "(entityA: " + entityAName + " {EntityId:'" + entityAId + "'}), (entityB:" + entityBName + " {EntityId:'" + entityBId + "'), p = shortestPath((entityA)-[*]-(entityB)) WHERE length(p) > 1";
+                    var query = "(item1: " + entityAName + " {EntityId:'" + entityAId + "'}), (item2:" + entityBName + " {EntityId:'" + entityBId + "'), p = shortestPath((item1)-[*]-(item2)) WHERE length(p) > 1";
 
-                    return isOptional ? queryBuilder.Match(query) : queryBuilder.OptionalMatch(query);
+                    return isOptional ? _client.Cypher.OptionalMatch(query) : _client.Cypher.Match(query);
                     }
                     
                 case NeoRelationType.LEFT:
                 {
-                    var query = $"(entityA:{entityBName})-[r:{relation}]->(entityB:{entityAName}) WHERE (entityA.EntityId = '{entityAId}')";
+                    var query = $"(item1:{entityAName})<-[rel:{relation}]-(item2:{entityBName}) WHERE (item1.EntityId = '{entityAId}')";
 
-                    return isOptional ? queryBuilder.Match(query) : queryBuilder.OptionalMatch(query);
+                    return isOptional ? _client.Cypher.OptionalMatch(query) : _client.Cypher.Match(query);
                     }
                 
                 default:

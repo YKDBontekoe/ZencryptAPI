@@ -5,7 +5,11 @@ using System.Threading.Tasks;
 
 namespace ZenCryptAPI.Models.Data.User.Types
 {
-    public class ProfileUserModel : BaseUserModel
+    public class ProfileUserModel
     {
+        public FullUserModel User { get; set; }
+        public ICollection<BaseUserModel> Following { get; set; }    
+        public ICollection<BaseUserModel> FollowedBy { get; set; }
+
     }
 }

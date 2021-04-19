@@ -8,6 +8,7 @@ using Domain.Types.User;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Domain.Exceptions;
 using ZenCryptAPI.Models.Data.User;
@@ -183,6 +184,7 @@ namespace ZenCryptAPI.Controllers
                     case UserType.PROFILE:
                         {
                             var foundUser = await _userService.GetUserById<ProfileUser, User, User>(id, userType);
+
                             return Ok(new SingleItemFrame<ProfileUserModel>
                             {
                                 Message = message,
