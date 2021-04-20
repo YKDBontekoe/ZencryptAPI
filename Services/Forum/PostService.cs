@@ -155,7 +155,7 @@ namespace Services.Forum
          * Get all posts from database
          * Returns all posts from database
          */
-        public async Task<IEnumerable<Post>> GetPosts()
+        public async Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord)
         {
             // Get all posts from database
             var foundPosts = await _postIsqlRepository.GetAll();
@@ -165,6 +165,42 @@ namespace Services.Forum
             {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("posts");
+            }
+
+            if (searchWord != null)
+            {
+                foundPosts = foundPosts.Where(c => c.Title.Contains(searchWord));
+            }
+
+            if (sortType != null)
+            {
+                switch (sortType)
+                {
+                    case ApiSortType.MOST_DISLIKED:
+                    {
+                        foundPosts = foundPosts.OrderByDescending(c => c.DislikedByUsers.Count);
+                    } break;
+                    case ApiSortType.OLDEST_TO_NEW:
+                    {
+                        foundPosts = foundPosts.OrderBy(c => c.CreatedAt);
+                    }
+                        break;
+                    case ApiSortType.NEW_TO_OLDEST:
+                    {
+                        foundPosts = foundPosts.OrderByDescending(c => c.CreatedAt);
+                    }
+                        break;
+                    case ApiSortType.MOST_LIKED:
+                    {
+                        foundPosts = foundPosts.OrderByDescending(c => c.LikedByUsers.Count);
+                    }
+                        break;
+                    case ApiSortType.MOST_VIEWED:
+                    {
+                        foundPosts = foundPosts.OrderByDescending(c => c.ViewedByUsers.Count);
+                    }
+                        break;
+                }
             }
 
             // Returns found posts

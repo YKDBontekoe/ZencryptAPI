@@ -2,6 +2,6 @@
 {
     public enum NEORelation
     {
-        LIKED, DISLIKED, FOLLOWED, VIEWED, POSTED
+        LIKED, DISLIKED, FOLLOWED, VIEWED, POSTED, COMMENTED, COMMENT
     }
 }

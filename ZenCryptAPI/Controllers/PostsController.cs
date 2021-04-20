@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities.SQL.Forums;
+using Domain.Enums;
 using Domain.Frames.Endpoint;
 using ZenCryptAPI.Models.Data.Post;
 
@@ -30,12 +31,12 @@ namespace ZenCryptAPI.Controllers
         //------------------------------ POST --------------------------------
         // GET: api/<PostsController>
         [HttpGet("")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(ApiSortType? sortType, string? searchKeyWord)
         {
             try
             {
                 // Get posts
-                var foundPosts = await _postService.GetPosts();
+                var foundPosts = await _postService.GetPosts(sortType, searchKeyWord);
 
                 // Map posts
                 var postModel = _mapper.Map<MultiPostModel[]>(foundPosts.ToArray());

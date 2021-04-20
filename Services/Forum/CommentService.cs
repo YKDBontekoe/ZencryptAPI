@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities.SQL.Forums;
+using Domain.Enums.Neo;
 using Domain.Exceptions;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;
@@ -16,12 +17,18 @@ namespace Services.Forum
         private readonly IAuthenticationService _authenticationService;
         private readonly ISQLRepository<Comment> _commentIsqlRepository;
         private readonly ISQLRepository<Post> _postIsqlRepository;
+        private readonly INeoRepository<Comment> _neoCommentRepository;
+        private readonly INeoRepository<Post> _neoPostRepository;
+        private readonly INeoRepository<Domain.Entities.SQL.User.User> _neoUserRepository;
 
-        public CommentService(IAuthenticationService authenticationService, ISQLRepository<Comment> commentIsqlRepository, ISQLRepository<Post> postIsqlRepository)
+        public CommentService(IAuthenticationService authenticationService, ISQLRepository<Comment> commentIsqlRepository, ISQLRepository<Post> postIsqlRepository, INeoRepository<Comment> neoCommentRepository, INeoRepository<Post> neoPostRepository, INeoRepository<Domain.Entities.SQL.User.User> neoUserRepository)
         {
             _authenticationService = authenticationService;
             _commentIsqlRepository = commentIsqlRepository;
             _postIsqlRepository = postIsqlRepository;
+            _neoCommentRepository = neoCommentRepository;
+            _neoPostRepository = neoPostRepository;
+            _neoUserRepository = neoUserRepository;
         }
 
         /**
@@ -59,8 +66,13 @@ namespace Services.Forum
             // Add postId to comment
             comment.PostId = postId;
 
-            // Create and return new comment
-            return await _commentIsqlRepository.Insert(comment);
+            // Create new comment in sql database
+            await _commentIsqlRepository.Insert(comment);
+            await _neoPostRepository.CreateRelation(userFromToken, NEORelation.COMMENTED, comment);
+            await _neoPostRepository.CreateRelation(foundPost, NEORelation.COMMENT, comment);
+
+            // Returns new comment
+            return comment;
         }
 
         /**
@@ -140,7 +152,9 @@ namespace Services.Forum
             }
 
             // Delete comment and return deleted comment
-            return await _commentIsqlRepository.Delete(foundComment);
+            await _commentIsqlRepository.Delete(foundComment);
+            await _neoCommentRepository.Delete(foundComment);
+            return foundComment;
         }
 
         /**
