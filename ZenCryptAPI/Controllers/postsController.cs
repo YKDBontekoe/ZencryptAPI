@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities.SQL.Forums;
+using Domain.Enums;
 using Domain.Frames.Endpoint;
 using ZenCryptAPI.Models.Data.Post;
 
@@ -30,19 +31,22 @@ namespace ZenCryptAPI.Controllers
         //------------------------------ POST --------------------------------
         // GET: api/<PostsController>
         [HttpGet("")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(ApiSortType? sortType, string? searchKeyWord, int? pageSize, int? page)
         {
             try
             {
                 // Get posts
-                var foundPosts = await _postService.GetPosts();
-
+                var foundPostsCount = await _postService.GetPosts(null, searchKeyWord, null, null);
+                var totalSize = foundPostsCount.Count();
+                
+                var foundPosts = await _postService.GetPosts(sortType, searchKeyWord, pageSize, page);
+                
                 // Map posts
                 var postModel = _mapper.Map<MultiPostModel[]>(foundPosts.ToArray());
 
                 // Wrap the userModel object to an api frame
                 var returnable = new MultiItemFrame<MultiPostModel>()
-                { Message = $"Found posts", TotalResults = postModel.Count(), Results = postModel };
+                { Message = $"Found posts", TotalResults = totalSize, Results = postModel };
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);

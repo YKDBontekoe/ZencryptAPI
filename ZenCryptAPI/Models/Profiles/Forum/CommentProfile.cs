@@ -16,7 +16,11 @@ namespace ZenCryptAPI.Models.Profiles.Forum
     {
         public CommentProfile()
         {
-            CreateMap<Comment, MultiCommentModel>();
+            CreateMap<Comment, MultiCommentModel>()
+                .ForMember(c => c.Likes, opt => opt.MapFrom(c => c.LikedByUsers.Count))
+                .ForMember(c => c.Dislikes, opt => opt.MapFrom(c => c.DislikedByUsers.Count))
+                .ForMember(c => c.UploadedUserName, opt => opt.MapFrom(c => c.UploadedUser.UserName ?? c.UploadedUser.FirstName));
+
             CreateMap<Comment, SingleCommentModel>();
             CreateMap<CommentDTO, Comment>();
         }

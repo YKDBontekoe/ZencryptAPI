@@ -155,10 +155,29 @@ namespace Services.Forum
          * Get all posts from database
          * Returns all posts from database
          */
-        public async Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord)
+        public async Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord, int? pageSize, int? page)
         {
             // Get all posts from database
             var foundPosts = await _postIsqlRepository.GetAll();
+            if (searchWord != null && searchWord.Any())
+            {
+                searchWord = searchWord.ToUpper();
+                foundPosts = foundPosts.Where(c => c.Title.ToUpper().Contains(searchWord));
+            }
+
+            if (pageSize != null)   
+            {
+                if (pageSize.Value > 50)
+                {
+                    throw new Exception("Maximum allowed page size is 50");
+                }
+                
+                if (page != null)
+                {
+                    foundPosts = page == 1 ? foundPosts.Skip(0) : foundPosts.Skip(page.Value * pageSize.Value);
+                }
+                foundPosts = foundPosts.Take(pageSize.Value);
+            }
 
             // Check if list is not empty
             if (!foundPosts.Any())
@@ -167,12 +186,7 @@ namespace Services.Forum
                 throw new NotFoundException("posts");
             }
 
-            if (searchWord != null)
-            {
-                foundPosts = foundPosts.Where(c => c.Title.Contains(searchWord));
-            }
-
-            if (sortType != null)
+            if (sortType == null) return foundPosts;
             {
                 switch (sortType)
                 {

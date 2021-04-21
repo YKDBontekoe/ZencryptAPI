@@ -12,7 +12,7 @@ namespace Domain.Services.Forum
         Task<Post> UpdatePost(Guid postId, Post post, string token);
         Task<Post> DeletePost(Guid postId, string token); 
         Task<Post> GetPost(Guid postId);
-        Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord);
+        Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord, int? pageSize, int? page);
             
         Task<Post> UserLikePost(Guid postId, string token);
         Task<Post> UserDislikePost(Guid postId, string token);
