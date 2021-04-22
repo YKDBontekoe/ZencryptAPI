@@ -1,21 +1,19 @@
 ﻿using System.Linq;
 using AutoMapper;
-using Domain.DataTransferObjects;
 using Domain.DataTransferObjects.User;
 using Domain.Types.User;
 using ZenCryptAPI.Models.Data.User;
 using ZenCryptAPI.Models.Data.User.Types;
 
-
 namespace ZenCryptAPI.Models.Profiles.User
 {
     /// <summary>
-    /// Maps user with models
+    ///     Maps user with models
     /// </summary>
     public class UserProfile : Profile
     {
         /// <summary>
-        /// Maps user with Login User Model and User Model
+        ///     Maps user with Login User Model and User Model
         /// </summary>
         public UserProfile()
         {

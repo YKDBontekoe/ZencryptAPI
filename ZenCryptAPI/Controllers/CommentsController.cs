@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,9 +8,8 @@ using Domain.Entities.SQL.Forums;
 using Domain.Exceptions;
 using Domain.Frames.Endpoint;
 using Domain.Services.Forum;
-using Domain.Services.User;
+using Microsoft.AspNetCore.Mvc;
 using ZenCryptAPI.Models.Data.Comment;
-
 
 namespace ZenCryptAPI.Controllers
 {
@@ -30,7 +28,7 @@ namespace ZenCryptAPI.Controllers
 
         // GET: api/<ValuesController>
         [HttpGet]
-        public async Task<IActionResult> Get(Guid postId) 
+        public async Task<IActionResult> Get(Guid postId)
         {
             try
             {
@@ -41,8 +39,8 @@ namespace ZenCryptAPI.Controllers
                 var commentModel = _mapper.Map<IEnumerable<MultiCommentModel>>(foundComments);
 
                 // Wrap the commentModel object to an api frame
-                var returnable = new MultiItemFrame<MultiCommentModel>()
-                    { Message = $"Found comments", TotalResults = commentModel.Count(), Results = commentModel };
+                var returnable = new MultiItemFrame<MultiCommentModel>
+                    {Message = "Found comments", TotalResults = commentModel.Count(), Results = commentModel};
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -50,7 +48,7 @@ namespace ZenCryptAPI.Controllers
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 
@@ -67,8 +65,8 @@ namespace ZenCryptAPI.Controllers
                 var commentModel = _mapper.Map<SingleCommentModel>(foundComment);
 
                 // Wrap the commentModel object to an api frame
-                var returnable = new SingleItemFrame<SingleCommentModel>()
-                    { Message = $"Found comment", Result = commentModel };
+                var returnable = new SingleItemFrame<SingleCommentModel>
+                    {Message = "Found comment", Result = commentModel};
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -76,36 +74,43 @@ namespace ZenCryptAPI.Controllers
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 
         // POST api/<ValuesController>
         [HttpPost]
-        public async Task<IActionResult> Post(Guid postId, [FromBody] CommentDTO commentDto) 
+        public async Task<IActionResult> Post(Guid postId, [FromBody] CommentDTO commentDto)
         {
             try
             {
-                // Map comment data transfer object to comment object
-                var comment = _mapper.Map<Comment>(commentDto);
+                try
+                {
+                    // Map comment data transfer object to comment object
+                    var comment = _mapper.Map<Comment>(commentDto);
 
-                // Create comment
-                var createdComment = await _commentService.CreateCommentToPost(comment, postId, GetBearerToken());
+                    // Create comment
+                    var createdComment = await _commentService.CreateCommentToPost(comment, postId, GetBearerToken());
 
-                // Map to SingleCommentModel
-                var commentModel = _mapper.Map<SingleCommentModel>(createdComment);
+                    // Map to SingleCommentModel
+                    var commentModel = _mapper.Map<SingleCommentModel>(createdComment);
 
-                // Wrap the commentModel object to an api frame
-                var returnable = new SingleItemFrame<SingleCommentModel>()
-                    { Message = $"Created comment", Result = commentModel };
+                    // Wrap the commentModel object to an api frame
+                    var returnable = new SingleItemFrame<SingleCommentModel>
+                        {Message = "Created comment", Result = commentModel};
 
-                // Returns code 200 and the userModel
-                return Ok(returnable);
+                    // Returns code 200 and the userModel
+                    return Ok(returnable);
+                }
+                catch (InvalidTokenException ie)
+                {
+                    return Unauthorized(new SingleItemFrame<object> {Message = ie.Message});
+                }
             }
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 

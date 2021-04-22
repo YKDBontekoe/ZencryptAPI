@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities.SQL.Forums;
 using Domain.Enums.Neo;
@@ -16,12 +14,15 @@ namespace Services.Forum
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly ISQLRepository<Comment> _commentIsqlRepository;
-        private readonly ISQLRepository<Post> _postIsqlRepository;
         private readonly INeoRepository<Comment> _neoCommentRepository;
         private readonly INeoRepository<Post> _neoPostRepository;
         private readonly INeoRepository<Domain.Entities.SQL.User.User> _neoUserRepository;
+        private readonly ISQLRepository<Post> _postIsqlRepository;
 
-        public CommentService(IAuthenticationService authenticationService, ISQLRepository<Comment> commentIsqlRepository, ISQLRepository<Post> postIsqlRepository, INeoRepository<Comment> neoCommentRepository, INeoRepository<Post> neoPostRepository, INeoRepository<Domain.Entities.SQL.User.User> neoUserRepository)
+        public CommentService(IAuthenticationService authenticationService,
+            ISQLRepository<Comment> commentIsqlRepository, ISQLRepository<Post> postIsqlRepository,
+            INeoRepository<Comment> neoCommentRepository, INeoRepository<Post> neoPostRepository,
+            INeoRepository<Domain.Entities.SQL.User.User> neoUserRepository)
         {
             _authenticationService = authenticationService;
             _commentIsqlRepository = commentIsqlRepository;
@@ -42,20 +43,16 @@ namespace Services.Forum
 
             // Check if post is in database
             if (foundPost == null)
-            {
                 // Throw error if post is not found/ null
                 throw new NotFoundException("Post");
-            }
 
             // Token validation
             var isValidToken = _authenticationService.IsValidToken(token);
 
             // Check if token is valid
             if (!isValidToken)
-            {
                 // Throw an exception if token is invalid
                 throw new InvalidTokenException();
-            }
 
             // Get user from token
             var userFromToken = await _authenticationService.GetUserFromToken(token);
@@ -86,30 +83,24 @@ namespace Services.Forum
 
             // Check if comment is in database
             if (foundComment == null)
-            {
                 // Throw error if comment is not found/ null
                 throw new NotFoundException("Comment");
-            }
 
             // Token validation
             var isValidToken = _authenticationService.IsValidToken(token);
 
             // Check if token is valid
             if (!isValidToken)
-            {
                 // Throw an exception if token is invalid
                 throw new InvalidTokenException();
-            }
 
             // Get user from token
             var userFromToken = await _authenticationService.GetUserFromToken(token);
 
             // Check if user is owner of comment
             if (foundComment.UploadedUserId != userFromToken.Id)
-            {
                 // Throw an exception if comment is from user
                 throw new NoPermissionException("Comment");
-            }
 
             // Update and return updated comment
             return await _commentIsqlRepository.Update(comment);
@@ -126,30 +117,24 @@ namespace Services.Forum
 
             // Check if comment is in database
             if (foundComment == null)
-            {
                 // Throw not found exception if comment is not in database
                 throw new NotFoundException("comment");
-            }
 
             // Token validation
             var isValidToken = _authenticationService.IsValidToken(token);
 
             // Check if token is valid
             if (!isValidToken)
-            {
                 // Throw an exception if token is invalid
                 throw new InvalidTokenException();
-            }
 
             // Get user from token
             var userFromToken = await _authenticationService.GetUserFromToken(token);
 
             // Check if user is owner of comment
             if (foundComment.UploadedUserId != userFromToken.Id)
-            {
                 // Throw an exception if comment is from user
                 throw new NoPermissionException("Comment");
-            }
 
             // Delete comment and return deleted comment
             await _commentIsqlRepository.Delete(foundComment);
@@ -175,10 +160,8 @@ namespace Services.Forum
 
             // Check if post is in database
             if (foundPost == null)
-            {
                 // Throw error if post is not found/ null
                 throw new NotFoundException("Post");
-            }
 
             // Returns all comments from a post
             return foundPost.Comments;

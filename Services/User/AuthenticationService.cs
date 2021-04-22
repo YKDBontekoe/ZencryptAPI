@@ -16,13 +16,16 @@ namespace Services.User
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfiguration _config;
-        private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
-        private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
 
         private readonly string _jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
-                                         throw new InvalidOperationException("No jwt token provided!");
+                                          throw new InvalidOperationException("No jwt token provided!");
 
-        public AuthenticationService(IConfiguration config, ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
+        private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
+        private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
+
+        public AuthenticationService(IConfiguration config,
+            ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository,
+            INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
         {
             _config = config;
             _userSqlRepository = userSqlRepository;
@@ -127,7 +130,6 @@ namespace Services.User
                 new[]
                 {
                     new Claim("ID", user.Id.ToString())
-
                 },
                 expires: DateTime.Now.AddMinutes(120),
                 signingCredentials: credentials);
@@ -174,10 +176,8 @@ namespace Services.User
 
             // Check if user exists in database
             if (emailUserResult.Any())
-            {
                 // Throws exception if user is already in database
                 throw new DuplicateException(user.Email);
-            }
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 

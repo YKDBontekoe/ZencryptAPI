@@ -9,6 +9,6 @@ namespace Domain.Entities.SQL.User
         public Guid PostId { get; set; }
 
         public virtual User User { get; set; }
-        public virtual Post Post { get; set; } 
+        public virtual Post Post { get; set; }
     }
 }

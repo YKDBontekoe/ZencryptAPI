@@ -16,12 +16,14 @@ namespace Services.Forum
     public class PostService : IPostService
     {
         private readonly IAuthenticationService _authenticationService;
-        private readonly ISQLRepository<Post> _postIsqlRepository;
-        private readonly ISQLRepository<UserLikedPost> _userLikedIsqlRepository;
-        private readonly ISQLRepository<UserDislikedPost> _userDislikedIsqlRepository;
         private readonly INeoRepository<Post> _neoRepository;
+        private readonly ISQLRepository<Post> _postIsqlRepository;
+        private readonly ISQLRepository<UserDislikedPost> _userDislikedIsqlRepository;
+        private readonly ISQLRepository<UserLikedPost> _userLikedIsqlRepository;
 
-        public PostService(IAuthenticationService authenticationService, ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserLikedPost> userLikedIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, INeoRepository<Post> neoRepository)
+        public PostService(IAuthenticationService authenticationService, ISQLRepository<Post> postIsqlRepository,
+            ISQLRepository<UserLikedPost> userLikedIsqlRepository,
+            ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, INeoRepository<Post> neoRepository)
         {
             _authenticationService = authenticationService;
             _postIsqlRepository = postIsqlRepository;
@@ -75,19 +77,14 @@ namespace Services.Forum
 
             // Check if post exists
             if (foundPost == null)
-            {
                 // Throw an exception if post has not been found
                 throw new NotFoundException("Post");
-            }
 
             // Set postId in post
             post.Id = postId;
 
             // Check if user is the owner of the post
-            if (foundPost.UploadedUserId != tokenUser.Id)
-            {
-                throw new NoPermissionException("edit");
-            }
+            if (foundPost.UploadedUserId != tokenUser.Id) throw new NoPermissionException("edit");
 
             // Updates post in database and returns the updated post
             return await _postIsqlRepository.Update(post);
@@ -110,19 +107,14 @@ namespace Services.Forum
 
             // Check if post exists
             if (foundPost == null)
-            {
                 // Throw an exception if post has not been found
                 throw new NotFoundException("Post");
-            }
 
             // Check if user is the owner of the post
-            if (foundPost.UploadedByUser.Id != tokenUser.Id)
-            {
-                throw new NoPermissionException("delete");
-            }
+            if (foundPost.UploadedByUser.Id != tokenUser.Id) throw new NoPermissionException("delete");
 
             // Deletes post in database
-            var deletedPost = await _postIsqlRepository.Delete(foundPost); 
+            var deletedPost = await _postIsqlRepository.Delete(foundPost);
 
             //Deletes post in graph database
             await _neoRepository.Delete(deletedPost);
@@ -142,10 +134,8 @@ namespace Services.Forum
 
             // Check if post is null
             if (foundPost == null)
-            {
                 // Throw not found exception if post has not been found
                 throw new NotFoundException("post");
-            }
 
             // Returns single found post
             return foundPost;
@@ -155,7 +145,8 @@ namespace Services.Forum
          * Get all posts from database
          * Returns all posts from database
          */
-        public async Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord, int? pageSize, int? page)
+        public async Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord, int? pageSize,
+            int? page)
         {
             // Get all posts from database
             var foundPosts = await _postIsqlRepository.GetAll();
@@ -165,26 +156,19 @@ namespace Services.Forum
                 foundPosts = foundPosts.Where(c => c.Title.ToUpper().Contains(searchWord));
             }
 
-            if (pageSize != null)   
+            if (pageSize != null)
             {
-                if (pageSize.Value > 50)
-                {
-                    throw new Exception("Maximum allowed page size is 50");
-                }
-                
+                if (pageSize.Value > 50) throw new Exception("Maximum allowed page size is 50");
+
                 if (page != null)
-                {
                     foundPosts = page == 1 ? foundPosts.Skip(0) : foundPosts.Skip(page.Value * pageSize.Value);
-                }
                 foundPosts = foundPosts.Take(pageSize.Value);
             }
 
             // Check if list is not empty
             if (!foundPosts.Any())
-            {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("posts");
-            }
 
             if (sortType == null) return foundPosts;
             {
@@ -193,7 +177,8 @@ namespace Services.Forum
                     case ApiSortType.MOST_DISLIKED:
                     {
                         foundPosts = foundPosts.OrderByDescending(c => c.DislikedByUsers.Count);
-                    } break;
+                    }
+                        break;
                     case ApiSortType.OLDEST_TO_NEW:
                     {
                         foundPosts = foundPosts.OrderBy(c => c.CreatedAt);
@@ -232,17 +217,15 @@ namespace Services.Forum
 
             // Check if post is null
             if (foundPost == null)
-            {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
-            }
 
             // Validates Token
             ValidateToken(token);
 
             // Get user from token
             var tokenUser = await _authenticationService.GetUserFromToken(token);
-            
+
             // Create UserLike object
             var userLike = new UserLikedPost
             {
@@ -252,10 +235,8 @@ namespace Services.Forum
 
             // Check if user has already liked this post
             if (tokenUser.LikedPosts.Any(c => c.PostId == postId && c.IsActive))
-            {
                 // Throw CannotPerformActionException when user has already liked this post
                 throw new CannotPerformActionException("You have already liked this post");
-            }
 
             // Add like to post
             foundPost.LikedByUsers.Add(userLike);
@@ -281,10 +262,8 @@ namespace Services.Forum
 
             // Check if post is null
             if (foundPost == null)
-            {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
-            }
 
             // Validates Token
             ValidateToken(token);
@@ -294,10 +273,8 @@ namespace Services.Forum
 
             // Check if user has already disliked this post
             if (tokenUser.DislikedPosts.Any(c => c.PostId == postId && c.IsActive))
-            {
                 // Throw CannotPerformActionException when user has already disliked this post
                 throw new CannotPerformActionException("You have already disliked this post");
-            }
 
             // Create UserDislike object
             var userDislike = new UserDislikedPost
@@ -320,9 +297,9 @@ namespace Services.Forum
         }
 
         /**
-        * Add view to a post from a user
-        * Returns viewed post
-        */
+         * Add view to a post from a user
+         * Returns viewed post
+         */
         public async Task<Post> UserViewPost(Guid postId, string token)
         {
             // Find post
@@ -330,10 +307,8 @@ namespace Services.Forum
 
             // Check if post is null
             if (foundPost == null)
-            {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
-            }
 
             // Validates Token
             ValidateToken(token);
@@ -343,10 +318,8 @@ namespace Services.Forum
 
             // Check if user has already viewed this post
             if (tokenUser.ViewedPosts.Any(c => c.PostId == postId && c.IsActive))
-            {
                 // Return found post if user has already seen this post
                 return foundPost;
-            }
 
             // Create UserViewedPost object
             var userView = new UserViewedPost
@@ -369,9 +342,9 @@ namespace Services.Forum
         }
 
         /**
-        * Removes dislike on post from a user
-        * Returns un- disliked post
-        */
+         * Removes dislike on post from a user
+         * Returns un- disliked post
+         */
         public async Task<Post> UndoUserLikePost(Guid postId, string token)
         {
             // Find post
@@ -379,10 +352,8 @@ namespace Services.Forum
 
             // Check if post is null
             if (foundPost == null)
-            {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
-            }
 
             // Validates Token
             ValidateToken(token);
@@ -395,10 +366,8 @@ namespace Services.Forum
 
             // Check if like has been found
             if (foundLikedPost == null)
-            {
                 // Throw NotFoundException if like was not found
                 throw new NotFoundException("not disliked");
-            }
 
             // Remove like from post
             await _userLikedIsqlRepository.Delete(foundLikedPost);
@@ -411,9 +380,9 @@ namespace Services.Forum
         }
 
         /**
-        * Removes like on post from a user
-        * Returns un- liked post
-        */
+         * Removes like on post from a user
+         * Returns un- liked post
+         */
         public async Task<Post> UndoUserDislikePost(Guid postId, string token)
         {
             // Find post
@@ -421,10 +390,8 @@ namespace Services.Forum
 
             // Check if post is null
             if (foundPost == null)
-            {
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
-            }
 
             // Validates Token
             ValidateToken(token);
@@ -437,10 +404,8 @@ namespace Services.Forum
 
             // Check if dislike has been found
             if (foundDislikedPost == null)
-            {
                 // Throw NotFoundException if dislike was not found
                 throw new NotFoundException("not disliked");
-            }
 
             // Remove dislike from post
             await _userDislikedIsqlRepository.Delete(foundDislikedPost);
@@ -459,10 +424,8 @@ namespace Services.Forum
 
             // Check if token is valid
             if (!isValidToken)
-            {
                 // Throw an exception if token is invalid
                 throw new InvalidTokenException();
-            }
         }
     }
 }

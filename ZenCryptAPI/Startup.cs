@@ -1,6 +1,12 @@
-using Domain.Services;
-using Infrastructure.EF;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using Domain.Services.Forum;
+using Domain.Services.Repositories;
+using Domain.Services.User;
 using Infrastructure.EF.Context;
+using Infrastructure.EF.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,18 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using Services;
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using Domain.Services.Forum;
-using Domain.Services.Repositories;
-using Domain.Services.User;
-using Infrastructure.EF.Repositories;
-using Microsoft.Extensions.Options;
 using Neo4jClient;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Services.Forum;
 using Services.User;
@@ -41,7 +37,9 @@ namespace ZenCryptAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<EntityContext>(options =>
-                options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ?? throw new InvalidOperationException("No sql connection string provided!")).UseLazyLoadingProxies());
+                options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ??
+                                     throw new InvalidOperationException("No sql connection string provided!"))
+                    .UseLazyLoadingProxies());
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -54,14 +52,18 @@ namespace ZenCryptAPI
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = Configuration["Jwt:Issuer"],
                         ValidAudience = Configuration["Jwt:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ?? throw new InvalidOperationException("No jwt token provided!")))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                            Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
+                            throw new InvalidOperationException("No jwt token provided!")))
                     };
                 });
 
-            var neo4JClient = new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ?? throw new InvalidOperationException("No neo4j connection string provided!"))) 
-            {
-                JsonContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
+            var neo4JClient =
+                new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ??
+                                        throw new InvalidOperationException("No neo4j connection string provided!")))
+                {
+                    JsonContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
 
             neo4JClient.ConnectAsync().Wait();
 
@@ -82,7 +84,7 @@ namespace ZenCryptAPI
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ZenCryptAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "ZenCryptAPI", Version = "v1"});
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);

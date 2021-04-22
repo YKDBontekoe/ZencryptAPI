@@ -1,16 +1,15 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading.Tasks;
+using AutoMapper;
 using Domain.DataTransferObjects.User;
 using Domain.Entities.SQL.User;
 using Domain.Enums;
+using Domain.Exceptions;
 using Domain.Frames.Endpoint;
 using Domain.Services.User;
 using Domain.Types.User;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Domain.Exceptions;
 using ZenCryptAPI.Models.Data.User;
 using ZenCryptAPI.Models.Data.User.Types;
 
@@ -22,8 +21,8 @@ namespace ZenCryptAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IAuthenticationService _authService;
-        private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly IUserService _userService;
 
         public UsersController(IAuthenticationService authService, IUserService userService, IMapper mapper)
         {
@@ -54,7 +53,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the userModel object to an api frame
                 var returnable = new SingleItemFrame<LoginUserModel>
-                { Message = $"Welcome back {rUser.FirstName}! ", Result = userModel };
+                    {Message = $"Welcome back {rUser.FirstName}! ", Result = userModel};
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -62,17 +61,17 @@ namespace ZenCryptAPI.Controllers
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 
         // POST api/<UserController>/register
         /// <summary>
-        ///     Creates a new user and returns new user 
+        ///     Creates a new user and returns new user
         /// </summary>
         /// <param name="user">Register user with all user data</param>
         /// <returns>Will return new user in an api frame</returns>
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody] RegisterUserDTO user)
         {
             try
@@ -88,7 +87,7 @@ namespace ZenCryptAPI.Controllers
 
                 // Wrap the userModel object to an api frame
                 var returnable = new SingleItemFrame<RegisterUserModel>
-                { Message = $"Welcome back {rUser.FirstName}! ", Result = userModel };
+                    {Message = $"Welcome back {rUser.FirstName}! ", Result = userModel};
 
                 // Returns code 200 and the userModel
                 return Ok(returnable);
@@ -96,57 +95,71 @@ namespace ZenCryptAPI.Controllers
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 
         [HttpPost("{followUserId}/follow")]
-        public async Task<IActionResult> Follow(Guid followUserId)    
+        public async Task<IActionResult> Follow(Guid followUserId)
         {
             try
             {
-                // Create follow relationship
-                var user = await _userService.FollowUser(GetBearerToken(), followUserId);
+                try
+                {
+                    // Create follow relationship
+                    var user = await _userService.FollowUser(GetBearerToken(), followUserId);
 
-                // Map registerDTO to User
-                var mapUser = _mapper.Map<MinimalUserModel>(user);
+                    // Map registerDTO to User
+                    var mapUser = _mapper.Map<MinimalUserModel>(user);
 
-                // Wrap the userModel object to an api frame
-                var returnable = new SingleItemFrame<MinimalUserModel>
-                    { Message = $"Followed {mapUser.UserName}! ", Result = mapUser };
+                    // Wrap the userModel object to an api frame
+                    var returnable = new SingleItemFrame<MinimalUserModel>
+                        {Message = $"Followed {mapUser.UserName}! ", Result = mapUser};
 
-                // Returns code 200 and the userModel
-                return Ok(returnable);
+                    // Returns code 200 and the userModel
+                    return Ok(returnable);
+                }
+                catch (InvalidTokenException ie)
+                {
+                    return Unauthorized(new SingleItemFrame<object> {Message = ie.Message});
+                }
             }
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 
         [HttpDelete("{followUserId}/unfollow")]
-        public async Task<IActionResult> Unfollow(Guid followUserId)    
+        public async Task<IActionResult> Unfollow(Guid followUserId)
         {
             try
             {
-                // Remove follow relationship
-                var user = await _userService.UnFollowUser(GetBearerToken(), followUserId);
+                try
+                {
+                    // Remove follow relationship
+                    var user = await _userService.UnFollowUser(GetBearerToken(), followUserId);
 
-                // Map registerDTO to User
-                var mapUser = _mapper.Map<MinimalUserModel>(user);
+                    // Map registerDTO to User
+                    var mapUser = _mapper.Map<MinimalUserModel>(user);
 
-                // Wrap the userModel object to an api frame
-                var returnable = new SingleItemFrame<MinimalUserModel>
-                    { Message = $"Un- followed {mapUser.UserName}! ", Result = mapUser };
+                    // Wrap the userModel object to an api frame
+                    var returnable = new SingleItemFrame<MinimalUserModel>
+                        {Message = $"Un- followed {mapUser.UserName}! ", Result = mapUser};
 
-                // Returns code 200 and the userModel
-                return Ok(returnable);
+                    // Returns code 200 and the userModel
+                    return Ok(returnable);
+                }
+                catch (InvalidTokenException ie)
+                {
+                    return Unauthorized(new SingleItemFrame<object> {Message = ie.Message});
+                }
             }
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 
@@ -161,52 +174,49 @@ namespace ZenCryptAPI.Controllers
                 {
                     case UserType.GENERAL:
                     case UserType.MINIMAL:
-                        {
-                            var foundUser = await _userService.GetUserById<User, User, User>(id, userType);
+                    {
+                        var foundUser = await _userService.GetUserById<User, User, User>(id, userType);
 
-                            if (UserType.MINIMAL == userType)
-                            {
-                                return Ok(new SingleItemFrame<MinimalUserModel>
-                                {
-                                    Message = message,
-                                    Result = _mapper.Map<MinimalUserModel>(foundUser)
-                                });
-                            }
-
-                            return Ok(new SingleItemFrame<GeneralUserModel>
+                        if (UserType.MINIMAL == userType)
+                            return Ok(new SingleItemFrame<MinimalUserModel>
                             {
                                 Message = message,
-                                Result = _mapper.Map<GeneralUserModel>(foundUser)
+                                Result = _mapper.Map<MinimalUserModel>(foundUser)
                             });
 
-                        }
+                        return Ok(new SingleItemFrame<GeneralUserModel>
+                        {
+                            Message = message,
+                            Result = _mapper.Map<GeneralUserModel>(foundUser)
+                        });
+                    }
 
                     case UserType.PROFILE:
-                        {
-                            var foundUser = await _userService.GetUserById<ProfileUser, User, User>(id, userType);
+                    {
+                        var foundUser = await _userService.GetUserById<ProfileUser, User, User>(id, userType);
 
-                            return Ok(new SingleItemFrame<ProfileUserModel>
-                            {
-                                Message = message,
-                                Result = _mapper.Map<ProfileUserModel>(foundUser)
-                            });
-                        }
+                        return Ok(new SingleItemFrame<ProfileUserModel>
+                        {
+                            Message = message,
+                            Result = _mapper.Map<ProfileUserModel>(foundUser)
+                        });
+                    }
                     default:
-                        {
-                            var foundUser = await _userService.GetUserById<User, User, User>(id, userType);
+                    {
+                        var foundUser = await _userService.GetUserById<User, User, User>(id, userType);
 
-                            return Ok(new SingleItemFrame<GeneralUserModel>
-                            {
-                                Message = message,
-                                Result = _mapper.Map<GeneralUserModel>(foundUser)
-                            });
-                        }
+                        return Ok(new SingleItemFrame<GeneralUserModel>
+                        {
+                            Message = message,
+                            Result = _mapper.Map<GeneralUserModel>(foundUser)
+                        });
+                    }
                 }
             }
             catch (Exception e)
             {
                 // Returns 404 with exception message
-                return NotFound(new SingleItemFrame<object> { Message = e.Message });
+                return NotFound(new SingleItemFrame<object> {Message = e.Message});
             }
         }
 

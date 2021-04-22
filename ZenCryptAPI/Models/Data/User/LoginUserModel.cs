@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ZenCryptAPI.Models.Data.User
+﻿namespace ZenCryptAPI.Models.Data.User
 {
     public class LoginUserModel : BaseUserModel
     {

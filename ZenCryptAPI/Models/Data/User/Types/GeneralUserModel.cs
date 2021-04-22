@@ -6,6 +6,6 @@
         public int TotalLikes { get; set; }
         public int TotalPosts { get; set; }
         public int TotalViews { get; set; }
-        public int TotalCommments { get; set; } 
+        public int TotalCommments { get; set; }
     }
 }

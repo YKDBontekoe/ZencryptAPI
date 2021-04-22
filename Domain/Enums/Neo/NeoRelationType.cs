@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Enums.Neo
+﻿namespace Domain.Enums.Neo
 {
     public enum NeoRelationType
     {
-        LEFT, RIGHT, INNER, OUTER, SHORTEST_PATH
+        LEFT,
+        RIGHT,
+        INNER,
+        OUTER,
+        SHORTEST_PATH
     }
 }

@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Entities.SQL.User;
+﻿using Domain.Entities.SQL.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -47,6 +46,5 @@ namespace Infrastructure.EF.EntityMapping
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
-
     }
 }
