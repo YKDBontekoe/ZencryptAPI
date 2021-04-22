@@ -125,7 +125,7 @@ namespace Infrastructure.EF.Repositories
                 .Match("(item1:" + typeof(TA).Name + ")",
                     "(item2:" + typeof(TB).Name + ") WHERE (item1.EntityId = '" + entityA.Id +
                     "') AND (item2.EntityId = '" + entityB.Id + "')")
-                .Create($"(item1)-[r:{relation}]->(item2)")
+                .Merge($"(item1)-[r:{relation}]->(item2)")
                 .ExecuteWithoutResultsAsync();
 
             var itemRelationObject = new DualRelationBoundObjects<TA, TB>

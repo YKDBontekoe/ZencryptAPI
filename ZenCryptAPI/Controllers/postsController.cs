@@ -190,14 +190,14 @@ namespace ZenCryptAPI.Controllers
                 try
                 {
                     // Create post
-                    var likedPost = await _postService.UserDislikePost(id, GetBearerToken());
+                    var viewedPost = await _postService.UserViewPost(id, GetBearerToken());
 
                     // Map to SinglePostModel
-                    var postModel = _mapper.Map<SinglePostModel>(likedPost);
+                    var postModel = _mapper.Map<SinglePostModel>(viewedPost);
 
                     // Wrap the userModel object to an api frame
                     var returnable = new SingleItemFrame<SinglePostModel>
-                        {Message = "Disliked post", Result = postModel};
+                        {Message = "Viewed Post", Result = postModel};
 
                     // Returns code 200 and the userModel
                     return Ok(returnable);

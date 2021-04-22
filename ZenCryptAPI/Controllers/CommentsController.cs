@@ -93,10 +93,10 @@ namespace ZenCryptAPI.Controllers
                     var createdComment = await _commentService.CreateCommentToPost(comment, postId, GetBearerToken());
 
                     // Map to SingleCommentModel
-                    var commentModel = _mapper.Map<SingleCommentModel>(createdComment);
+                    var commentModel = _mapper.Map<MultiCommentModel>(createdComment);
 
                     // Wrap the commentModel object to an api frame
-                    var returnable = new SingleItemFrame<SingleCommentModel>
+                    var returnable = new SingleItemFrame<MultiCommentModel>
                         {Message = "Created comment", Result = commentModel};
 
                     // Returns code 200 and the userModel
