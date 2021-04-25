@@ -1,4 +1,4 @@
-﻿namespace ZenCryptAPI.Models.Data.Comment
+﻿namespace Domain.Models.Comment
 {
     public class SingleCommentModel
     {

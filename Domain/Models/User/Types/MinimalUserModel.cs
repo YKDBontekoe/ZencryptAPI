@@ -1,4 +1,4 @@
-﻿namespace ZenCryptAPI.Models.Data.User.Types
+﻿namespace Domain.Models.User.Types
 {
     public class MinimalUserModel : BaseUserModel
     {

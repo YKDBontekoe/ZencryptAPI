@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.DataTransferObjects.Forums.Post;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
 using Domain.Enums;
@@ -36,7 +37,7 @@ namespace Services.Forum
          * Creates a post using an user EntityId
          * Returns the uploaded post
          */
-        public async Task<Post> CreatePost(Post post, string token)
+        public async Task<Post> CreatePost(CreatePostDTO createPost, string token)
         {
             // Validates Token
             ValidateToken(token);
@@ -45,8 +46,13 @@ namespace Services.Forum
             var tokenUser = await _authenticationService.GetUserFromToken(token);
 
             // Add user to post
-            post.UploadedByUser = tokenUser;
-
+            var post = new Post()
+            {
+                Title = createPost.Title,
+                Description = createPost.Description,
+                UploadedByUser = tokenUser
+            };
+            
             // Inserts post into database
             var insertedPost = await _postIsqlRepository.Insert(post);
 

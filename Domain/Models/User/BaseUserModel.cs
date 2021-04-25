@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ZenCryptAPI.Models.Data.User
+namespace Domain.Models.User
 {
     public class BaseUserModel
     {

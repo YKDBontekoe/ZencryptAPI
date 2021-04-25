@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Domain.DataTransferObjects.Forums.Comment;
 using Domain.Entities.SQL.Forums;
-using ZenCryptAPI.Models.Data.Comment;
+using Domain.Models.Comment;
 
 namespace ZenCryptAPI.Models.Profiles.Forum
 {

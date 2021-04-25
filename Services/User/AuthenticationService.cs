@@ -142,7 +142,7 @@ namespace Services.User
          * Authenticates given user in database
          * Returns user result from database
          */
-        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(BaseUserDTO user)
+        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(LoginUserDTO user)
         {
             // Find user in database by email
             var dbUsers = await _userSqlRepository.Filter(u => u.Email == user.Email);
@@ -169,7 +169,7 @@ namespace Services.User
          * Insert user into database
          * Returns inserted user from database
          */
-        public async Task<Domain.Entities.SQL.User.User> InsertUser(Domain.Entities.SQL.User.User user)
+        public async Task<Domain.Entities.SQL.User.User> InsertUser(RegisterUserDTO user)
         {
             // Find user by email in database
             var emailUserResult = await _userSqlRepository.Filter(u => u.Email == user.Email);
@@ -181,8 +181,17 @@ namespace Services.User
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
+            var dbUser = new Domain.Entities.SQL.User.User()
+            {
+                Email = user.Email,
+                Password = user.Password,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName
+            };
+            
             // Insert user into SQL database
-            await _userSqlRepository.Insert(user);
+            await _userSqlRepository.Insert(dbUser);
 
             // Saves user to database
             await _userSqlRepository.SaveChanges();

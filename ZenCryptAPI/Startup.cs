@@ -5,7 +5,10 @@ using System.Text;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;
 using Domain.Services.User;
+using HotChocolate;
+using HotChocolate.AspNetCore;
 using Infrastructure.EF.Context;
+using Infrastructure.EF.GraphQL;
 using Infrastructure.EF.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -41,23 +44,6 @@ namespace ZenCryptAPI
                                      throw new InvalidOperationException("No sql connection string provided!"))
                     .UseLazyLoadingProxies());
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = Configuration["Jwt:Issuer"],
-                        ValidAudience = Configuration["Jwt:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                            Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
-                            throw new InvalidOperationException("No jwt token provided!")))
-                    };
-                });
-
             var neo4JClient =
                 new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ??
                                         throw new InvalidOperationException("No neo4j connection string provided!")))
@@ -76,19 +62,11 @@ namespace ZenCryptAPI
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
 
-
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "ZenCryptAPI", Version = "v1"});
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-            });
+            services.AddAuthorization();
+            services.AddGraphQLServer()
+                .AddQueryType<Query>().AddFiltering().AddSorting()
+                .AddMutationType<Mutation>().AddAuthorization()
+                .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
 
             services.AddCors(o => o.AddPolicy("CurPolicy", builder =>
             {
@@ -97,9 +75,6 @@ namespace ZenCryptAPI
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
-
-            services.AddRouting(r => r.SuppressCheckForUnhandledSecurityMetadata = true);
-            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -107,23 +82,20 @@ namespace ZenCryptAPI
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZenCryptAPI v1"));
-
             UpdateDatabase(app);
-
-            app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-
+            
+            app.UsePlayground();
+            
             app.UseCors("CurPolicy");
             app.Use((context, next) =>
             {
                 context.Items["__CorsMiddlewareInvoked"] = true;
                 return next();
             });
-
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            
+            app.UseEndpoints(x => x.MapGraphQL());
         }
 
         // Automatically updates database on startup

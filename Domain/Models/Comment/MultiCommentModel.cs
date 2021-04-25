@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ZenCryptAPI.Models.Data.Comment
+namespace Domain.Models.Comment
 {
     public class MultiCommentModel
     {

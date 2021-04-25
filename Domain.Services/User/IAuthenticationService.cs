@@ -8,8 +8,8 @@ namespace Domain.Services.User
         bool IsValidToken(string token);
         Task<Entities.SQL.User.User> GetUserFromToken(string token);
         string GetJsonWebToken(Entities.SQL.User.User user);
-        Task<Entities.SQL.User.User> AuthenticateUser(BaseUserDTO user);
+        Task<Entities.SQL.User.User> AuthenticateUser(LoginUserDTO user);
 
-        Task<Entities.SQL.User.User> InsertUser(Entities.SQL.User.User user);
+        Task<Entities.SQL.User.User> InsertUser(RegisterUserDTO user);
     }
 }

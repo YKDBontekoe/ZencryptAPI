@@ -1,6 +1,6 @@
-﻿namespace ZenCryptAPI.Models.Data.User
+﻿namespace Domain.Models.User.Types
 {
-    public class RegisterUserModel : BaseUserModel
+    public class FullUserModel : BaseUserModel
     {
         public string Email { get; set; }
         public string FirstName { get; set; }
