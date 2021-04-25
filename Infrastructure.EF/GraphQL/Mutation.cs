@@ -37,9 +37,39 @@ namespace Infrastructure.EF.GraphQL
         
         // ------------------- Post ---------------------
         [Authorize]
-        public async Task<Post> CreatePost([Service]IPostService postService, CreatePostDTO createPost)
+        public async Task<PostDTO> CreatePost([Service]IPostService postService, CreatePostDTO createPost)
         {
-            return await postService.CreatePost(createPost, "");
+            return await postService.CreatePost(createPost);
+        }
+
+        [Authorize]
+        public async Task<PostDTO> LikePost([Service] IPostService postService, UserInteractPostDTO interactDto)
+        {
+            return await postService.UserLikePost(interactDto.PostId, interactDto.UserId);
+        }
+        
+        [Authorize]
+        public async Task<PostDTO> UndoLikePost([Service] IPostService postService, UserInteractPostDTO interactDto)
+        {
+            return await postService.UndoUserLikePost(interactDto.PostId, interactDto.UserId);
+        }
+        
+        [Authorize]
+        public async Task<PostDTO> DislikePost([Service] IPostService postService, UserInteractPostDTO interactDto)    
+        {
+            return await postService.UserDislikePost(interactDto.PostId, interactDto.UserId);
+        }
+        
+        [Authorize] 
+        public async Task<PostDTO> UndoDislikePost([Service] IPostService postService, UserInteractPostDTO interactDto)    
+        {
+            return await postService.UndoUserDislikePost(interactDto.PostId, interactDto.UserId);
+        }
+        
+        [Authorize] 
+        public async Task<PostDTO> ViewPost([Service] IPostService postService, UserInteractPostDTO interactDto)    
+        {
+            return await postService.UserViewPost(interactDto.PostId, interactDto.UserId);
         }
     }
 }

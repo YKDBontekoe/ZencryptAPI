@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Domain.DataTransferObjects.Forums.Post;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
@@ -21,36 +22,32 @@ namespace Services.Forum
         private readonly ISQLRepository<Post> _postIsqlRepository;
         private readonly ISQLRepository<UserDislikedPost> _userDislikedIsqlRepository;
         private readonly ISQLRepository<UserLikedPost> _userLikedIsqlRepository;
+        private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
+        private readonly IMapper _mapper;
 
-        public PostService(IAuthenticationService authenticationService, ISQLRepository<Post> postIsqlRepository,
-            ISQLRepository<UserLikedPost> userLikedIsqlRepository,
-            ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, INeoRepository<Post> neoRepository)
+        public PostService(IAuthenticationService authenticationService, INeoRepository<Post> neoRepository, ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, ISQLRepository<UserLikedPost> userLikedIsqlRepository, ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, IMapper mapper)
         {
             _authenticationService = authenticationService;
-            _postIsqlRepository = postIsqlRepository;
-            _userLikedIsqlRepository = userLikedIsqlRepository;
-            _userDislikedIsqlRepository = userDislikedIsqlRepository;
             _neoRepository = neoRepository;
+            _postIsqlRepository = postIsqlRepository;
+            _userDislikedIsqlRepository = userDislikedIsqlRepository;
+            _userLikedIsqlRepository = userLikedIsqlRepository;
+            _userSqlRepository = userSqlRepository;
+            _mapper = mapper;
         }
 
         /**
          * Creates a post using an user EntityId
          * Returns the uploaded post
          */
-        public async Task<Post> CreatePost(CreatePostDTO createPost, string token)
+        public async Task<PostDTO> CreatePost(CreatePostDTO createPost)
         {
-            // Validates Token
-            ValidateToken(token);
-
-            // Get user from token
-            var tokenUser = await _authenticationService.GetUserFromToken(token);
-
             // Add user to post
             var post = new Post()
             {
                 Title = createPost.Title,
                 Description = createPost.Description,
-                UploadedByUser = tokenUser
+                UploadedUserId = createPost.UserId
             };
             
             // Inserts post into database
@@ -60,21 +57,18 @@ namespace Services.Forum
             await _neoRepository.Insert(insertedPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEORelation.POSTED, insertedPost);
+            await _neoRepository.CreateRelation(new Domain.Entities.SQL.User.User(){Id = createPost.UserId}, NEORelation.POSTED, insertedPost);
 
             // returns the newly created post
-            return insertedPost;
+            return _mapper.Map<PostDTO>(insertedPost);
         }
 
         /**
          * Updates a post using post EntityId
          * Returns updated post
          */
-        public async Task<Post> UpdatePost(Guid postId, Post post, string token)
+        public async Task<PostDTO> UpdatePost(Guid postId, Post post, string token)
         {
-            // Validates Token
-            ValidateToken(token);
-
             // Get user from token
             var tokenUser = await _authenticationService.GetUserFromToken(token);
 
@@ -93,18 +87,15 @@ namespace Services.Forum
             if (foundPost.UploadedUserId != tokenUser.Id) throw new NoPermissionException("edit");
 
             // Updates post in database and returns the updated post
-            return await _postIsqlRepository.Update(post);
+            return _mapper.Map<PostDTO>(post);
         }
 
         /**
          * Deletes post by post id
          * Returns deleted post
          */
-        public async Task<Post> DeletePost(Guid postId, string token)
+        public async Task<PostDTO> DeletePost(Guid postId, string token)
         {
-            // Validates Token
-            ValidateToken(token);
-
             // Get user from token
             var tokenUser = await _authenticationService.GetUserFromToken(token);
 
@@ -126,14 +117,14 @@ namespace Services.Forum
             await _neoRepository.Delete(deletedPost);
 
             // returns the deleted post
-            return deletedPost;
+            return _mapper.Map<PostDTO>(deletedPost);
         }
 
         /**
          * Get a single post by id
          * Returns a single post
          */
-        public async Task<Post> GetPost(Guid postId)
+        public async Task<PostDTO> GetPost(Guid postId)
         {
             // Find post in database
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -144,79 +135,27 @@ namespace Services.Forum
                 throw new NotFoundException("post");
 
             // Returns single found post
-            return foundPost;
+            return _mapper.Map<PostDTO>(foundPost);
         }
 
         /**
          * Get all posts from database
          * Returns all posts from database
          */
-        public async Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord, int? pageSize,
-            int? page)
+        public async Task<IEnumerable<PostDTO>> GetPosts()
         {
             // Get all posts from database
             var foundPosts = await _postIsqlRepository.GetAll();
-            if (searchWord != null && searchWord.Any())
-            {
-                searchWord = searchWord.ToUpper();
-                foundPosts = foundPosts.Where(c => c.Title.ToUpper().Contains(searchWord));
-            }
-
-            if (pageSize != null)
-            {
-                if (pageSize.Value > 50) throw new Exception("Maximum allowed page size is 50");
-
-                if (page != null)
-                    foundPosts = page == 1 ? foundPosts.Skip(0) : foundPosts.Skip(page.Value * pageSize.Value);
-                foundPosts = foundPosts.Take(pageSize.Value);
-            }
-
-            // Check if list is not empty
-            if (!foundPosts.Any())
-                // Throw exception if there aren't any posts
-                throw new NotFoundException("posts");
-
-            if (sortType == null) return foundPosts;
-            {
-                switch (sortType)
-                {
-                    case ApiSortType.MOST_DISLIKED:
-                    {
-                        foundPosts = foundPosts.OrderByDescending(c => c.DislikedByUsers.Count);
-                    }
-                        break;
-                    case ApiSortType.OLDEST_TO_NEW:
-                    {
-                        foundPosts = foundPosts.OrderBy(c => c.CreatedAt);
-                    }
-                        break;
-                    case ApiSortType.NEW_TO_OLDEST:
-                    {
-                        foundPosts = foundPosts.OrderByDescending(c => c.CreatedAt);
-                    }
-                        break;
-                    case ApiSortType.MOST_LIKED:
-                    {
-                        foundPosts = foundPosts.OrderByDescending(c => c.LikedByUsers.Count);
-                    }
-                        break;
-                    case ApiSortType.MOST_VIEWED:
-                    {
-                        foundPosts = foundPosts.OrderByDescending(c => c.ViewedByUsers.Count);
-                    }
-                        break;
-                }
-            }
 
             // Returns found posts
-            return foundPosts;
+            return _mapper.ProjectTo<PostDTO>(foundPosts as IQueryable);
         }
 
         /**
          * Add like from a user
          * Returns liked post
          */
-        public async Task<Post> UserLikePost(Guid postId, string token)
+        public async Task<PostDTO> UserLikePost(Guid postId, Guid userId)
         {
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -226,21 +165,18 @@ namespace Services.Forum
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
 
-            // Validates Token
-            ValidateToken(token);
-
-            // Get user from token
-            var tokenUser = await _authenticationService.GetUserFromToken(token);
-
+            // Get User from database
+            var dbUser = await _userSqlRepository.Get(userId);
+            
             // Create UserLike object
             var userLike = new UserLikedPost
             {
                 PostId = postId,
-                UserId = tokenUser.Id
+                UserId = userId
             };
 
             // Check if user has already liked this post
-            if (tokenUser.LikedPosts.Any(c => c.PostId == postId && c.IsActive))
+            if (dbUser.LikedPosts.Any(c => c.PostId == postId && c.IsActive))
                 // Throw CannotPerformActionException when user has already liked this post
                 throw new CannotPerformActionException("You have already liked this post");
 
@@ -251,17 +187,17 @@ namespace Services.Forum
             await _postIsqlRepository.Update(foundPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEORelation.LIKED, foundPost);
+            await _neoRepository.CreateRelation(dbUser, NEORelation.LIKED, foundPost);
 
             // Return updated post
-            return foundPost;
+            return _mapper.Map<PostDTO>(foundPost);
         }
 
         /**
          * Add dislike from a user
          * Returns disliked post
          */
-        public async Task<Post> UserDislikePost(Guid postId, string token)
+        public async Task<PostDTO> UserDislikePost(Guid postId, Guid userId)
         {
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -271,14 +207,11 @@ namespace Services.Forum
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
 
-            // Validates Token
-            ValidateToken(token);
-
-            // Get user from token
-            var tokenUser = await _authenticationService.GetUserFromToken(token);
+            // Get User from database
+            var dbUser = await _userSqlRepository.Get(userId);
 
             // Check if user has already disliked this post
-            if (tokenUser.DislikedPosts.Any(c => c.PostId == postId && c.IsActive))
+            if (dbUser.DislikedPosts.Any(c => c.PostId == postId && c.IsActive))
                 // Throw CannotPerformActionException when user has already disliked this post
                 throw new CannotPerformActionException("You have already disliked this post");
 
@@ -286,7 +219,7 @@ namespace Services.Forum
             var userDislike = new UserDislikedPost
             {
                 PostId = postId,
-                UserId = tokenUser.Id
+                UserId = dbUser.Id
             };
 
             // Add dislike to post
@@ -296,17 +229,17 @@ namespace Services.Forum
             await _postIsqlRepository.Update(foundPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEORelation.DISLIKED, foundPost);
+            await _neoRepository.CreateRelation(dbUser, NEORelation.DISLIKED, foundPost);
 
             // Return updated post
-            return foundPost;
+            return _mapper.Map<PostDTO>(foundPost);
         }
 
         /**
          * Add view to a post from a user
          * Returns viewed post
          */
-        public async Task<Post> UserViewPost(Guid postId, string token)
+        public async Task<PostDTO> UserViewPost(Guid postId, Guid userId)
         {
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -316,22 +249,19 @@ namespace Services.Forum
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
 
-            // Validates Token
-            ValidateToken(token);
-
-            // Get user from token
-            var tokenUser = await _authenticationService.GetUserFromToken(token);
+            // Get User from database
+            var dbUser = await _userSqlRepository.Get(userId);
 
             // Check if user has already viewed this post
-            if (tokenUser.ViewedPosts.Any(c => c.PostId == postId && c.IsActive))
+            if (dbUser.ViewedPosts.Any(c => c.PostId == postId && c.IsActive))
                 // Return found post if user has already seen this post
-                return foundPost;
+                return _mapper.Map<PostDTO>(foundPost);
 
             // Create UserViewedPost object
             var userView = new UserViewedPost
             {
                 PostId = postId,
-                UserId = tokenUser.Id
+                UserId = dbUser.Id
             };
 
             // Add view to post
@@ -341,17 +271,17 @@ namespace Services.Forum
             await _postIsqlRepository.Update(foundPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(tokenUser, NEORelation.VIEWED, foundPost);
+            await _neoRepository.CreateRelation(dbUser, NEORelation.VIEWED, foundPost);
 
             // Return updated post
-            return foundPost;
+            return _mapper.Map<PostDTO>(foundPost);
         }
 
         /**
          * Removes dislike on post from a user
          * Returns un- disliked post
          */
-        public async Task<Post> UndoUserLikePost(Guid postId, string token)
+        public async Task<PostDTO> UndoUserLikePost(Guid postId, Guid userId)
         {
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -361,14 +291,11 @@ namespace Services.Forum
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
 
-            // Validates Token
-            ValidateToken(token);
-
-            // Get user from token
-            var tokenUser = await _authenticationService.GetUserFromToken(token);
+            // Get User from database
+            var dbUser = await _userSqlRepository.Get(userId);
 
             // Find liked post of user
-            var foundLikedPost = tokenUser.LikedPosts.FirstOrDefault(c => c.PostId == postId);
+            var foundLikedPost = dbUser.LikedPosts.FirstOrDefault(c => c.PostId == postId);
 
             // Check if like has been found
             if (foundLikedPost == null)
@@ -379,17 +306,17 @@ namespace Services.Forum
             await _userLikedIsqlRepository.Delete(foundLikedPost);
 
             // Removes relation from graph database
-            await _neoRepository.RemoveRelation(tokenUser, NEORelation.LIKED, foundPost);
+            await _neoRepository.RemoveRelation(dbUser, NEORelation.LIKED, foundPost);
 
             // Return updated post
-            return foundPost;
+            return _mapper.Map<PostDTO>(foundPost);
         }
 
         /**
          * Removes like on post from a user
          * Returns un- liked post
          */
-        public async Task<Post> UndoUserDislikePost(Guid postId, string token)
+        public async Task<PostDTO> UndoUserDislikePost(Guid postId, Guid userId)
         {
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -399,14 +326,11 @@ namespace Services.Forum
                 // Throw exception if there aren't any posts
                 throw new NotFoundException("post");
 
-            // Validates Token
-            ValidateToken(token);
-
-            // Get user from token
-            var tokenUser = await _authenticationService.GetUserFromToken(token);
+            // Get User from database
+            var dbUser = await _userSqlRepository.Get(userId);
 
             // Find liked post of user
-            var foundDislikedPost = tokenUser.DislikedPosts.FirstOrDefault(c => c.PostId == postId);
+            var foundDislikedPost = dbUser.DislikedPosts.FirstOrDefault(c => c.PostId == postId);
 
             // Check if dislike has been found
             if (foundDislikedPost == null)
@@ -417,21 +341,10 @@ namespace Services.Forum
             await _userDislikedIsqlRepository.Delete(foundDislikedPost);
 
             // Removes relation from graph database
-            await _neoRepository.RemoveRelation(tokenUser, NEORelation.DISLIKED, foundPost);
+            await _neoRepository.RemoveRelation(dbUser, NEORelation.DISLIKED, foundPost);
 
             // Return updated post
-            return foundPost;
-        }
-
-        private void ValidateToken(string token)
-        {
-            // Token validation
-            var isValidToken = _authenticationService.IsValidToken(token);
-
-            // Check if token is valid
-            if (!isValidToken)
-                // Throw an exception if token is invalid
-                throw new InvalidTokenException();
+            return _mapper.Map<PostDTO>(foundPost);
         }
     }
 }

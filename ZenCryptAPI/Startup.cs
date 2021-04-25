@@ -43,7 +43,22 @@ namespace ZenCryptAPI
                 options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ??
                                      throw new InvalidOperationException("No sql connection string provided!"))
                     .UseLazyLoadingProxies());
-
+            
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Issuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ?? throw new InvalidOperationException("No jwt token provided!")))
+                    };
+                });
+            
             var neo4JClient =
                 new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ??
                                         throw new InvalidOperationException("No neo4j connection string provided!")))
@@ -52,7 +67,7 @@ namespace ZenCryptAPI
                 };
 
             neo4JClient.ConnectAsync().Wait();
-
+            
             services.AddSingleton(Configuration);
             services.AddSingleton<IGraphClient>(neo4JClient);
             services.AddScoped(typeof(ISQLRepository<>), typeof(SQLRepository<>));
@@ -61,11 +76,13 @@ namespace ZenCryptAPI
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
-
+            
             services.AddAuthorization();
             services.AddGraphQLServer()
                 .AddQueryType<Query>().AddFiltering().AddSorting()
-                .AddMutationType<Mutation>().AddAuthorization()
+                .AddMutationType<Mutation>()
+                .AddAuthorization()
+                .AddErrorFilter<GraphQlErrorFilter>()
                 .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
 
             services.AddCors(o => o.AddPolicy("CurPolicy", builder =>
@@ -75,16 +92,19 @@ namespace ZenCryptAPI
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
+            
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-
+            
             UpdateDatabase(app);
             app.UseRouting();
             app.UseAuthorization();
+            app.UseAuthentication();
             
             app.UsePlayground();
             

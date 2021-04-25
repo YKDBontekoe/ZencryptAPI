@@ -9,17 +9,16 @@ namespace Domain.Services.Forum
 {
     public interface IPostService
     {
-        Task<Post> CreatePost(CreatePostDTO createPost, string token);
-        Task<Post> UpdatePost(Guid postId, Post post, string token);
-        Task<Post> DeletePost(Guid postId, string token);
-        Task<Post> GetPost(Guid postId);
-        Task<IEnumerable<Post>> GetPosts(ApiSortType? sortType, string? searchWord, int? pageSize, int? page);
+        Task<PostDTO> CreatePost(CreatePostDTO createPost);
+        Task<PostDTO> UpdatePost(Guid postId, Post post, string token);
+        Task<PostDTO> DeletePost(Guid postId, string token);
+        Task<IEnumerable<PostDTO>> GetPosts();
 
-        Task<Post> UserLikePost(Guid postId, string token);
-        Task<Post> UserDislikePost(Guid postId, string token);
-        Task<Post> UserViewPost(Guid postId, string token);
+        Task<PostDTO> UserLikePost(Guid postId, Guid userId);
+        Task<PostDTO> UserDislikePost(Guid postId, Guid userId);
+        Task<PostDTO> UserViewPost(Guid postId, Guid userId);   
 
-        Task<Post> UndoUserLikePost(Guid postId, string token);
-        Task<Post> UndoUserDislikePost(Guid postId, string token);
+        Task<PostDTO> UndoUserLikePost(Guid postId, Guid userId);
+        Task<PostDTO> UndoUserDislikePost(Guid postId, Guid userId);
     }
 }
