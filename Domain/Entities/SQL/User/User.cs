@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Domain.Entities.SQL.Forums;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities.SQL.User
 {

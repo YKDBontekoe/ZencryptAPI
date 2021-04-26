@@ -6,7 +6,7 @@ using HotChocolate;
 using HotChocolate.Data;
 using HotChocolate.Types;
 
-namespace Infrastructure.EF.GraphQL
+namespace ZenCryptAPI.Graphql
 {
     public class Query
     {

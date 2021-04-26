@@ -39,7 +39,7 @@ namespace Services.Forum
          * Create a comment and add the new comment to an existing post
          * Returns the newly created comment
          */
-        public async Task<CommentDTO> CreateCommentToPost(CreateCommentDTO comment)
+        public async Task<CommentDTO> CreateCommentToPost(CreateCommentDTO comment, string token)
         {
             // Get post from database by EntityId
             var foundPost = await _postIsqlRepository.Get(comment.PostId);
@@ -48,18 +48,29 @@ namespace Services.Forum
             if (foundPost == null)
                 // Throw error if post is not found/ null
                 throw new NotFoundException("Post");
+            
+            // Token validation
+            var isValidToken = _authenticationService.IsValidToken(token);
 
+            // Check if token is valid
+            if (!isValidToken)
+                // Throw an exception if token is invalid
+                throw new InvalidTokenException();
+
+            // Get user from token
+            var userFromToken = await _authenticationService.GetUserFromToken(token);
+            
             // Create Comment Object
             var dbComment = new Comment
             {
                 Description = comment.Description,
                 PostId = comment.PostId,
-                UploadedUserId = comment.UserId
+                UploadedUser = userFromToken
             };
 
             // Create new comment in sql database
             await _commentIsqlRepository.Insert(dbComment);
-            await _neoPostRepository.CreateRelation(new Domain.Entities.SQL.User.User {Id = comment.UserId},
+            await _neoPostRepository.CreateRelation(userFromToken,
                 NEORelation.COMMENTED, dbComment);
             await _neoPostRepository.CreateRelation(foundPost, NEORelation.COMMENT, dbComment);
 

@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Domain.Entities.SQL.User;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;
 using Domain.Services.User;
@@ -10,15 +11,19 @@ using Infrastructure.EF.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Neo4jClient;
 using Newtonsoft.Json.Serialization;
 using Services.Forum;
 using Services.User;
+using ZenCryptAPI.Graphql;
 
 namespace ZenCryptAPI
 {
@@ -38,7 +43,7 @@ namespace ZenCryptAPI
                 options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ??
                                      throw new InvalidOperationException("No sql connection string provided!"))
                     .UseLazyLoadingProxies());
-
+            
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -64,7 +69,9 @@ namespace ZenCryptAPI
                 };
 
             neo4JClient.ConnectAsync().Wait();
-
+            
+            services.AddHttpContextAccessor();
+            
             services.AddSingleton(Configuration);
             services.AddSingleton<IGraphClient>(neo4JClient);
             services.AddScoped(typeof(ISQLRepository<>), typeof(SQLRepository<>));
