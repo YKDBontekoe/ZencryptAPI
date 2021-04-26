@@ -1,11 +1,8 @@
 using System;
-using System.IO;
-using System.Reflection;
 using System.Text;
 using Domain.Services.Forum;
 using Domain.Services.Repositories;
 using Domain.Services.User;
-using HotChocolate;
 using HotChocolate.AspNetCore;
 using Infrastructure.EF.Context;
 using Infrastructure.EF.GraphQL;
@@ -18,9 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Neo4jClient;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Services.Forum;
 using Services.User;
@@ -43,7 +38,7 @@ namespace ZenCryptAPI
                 options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ??
                                      throw new InvalidOperationException("No sql connection string provided!"))
                     .UseLazyLoadingProxies());
-            
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -55,10 +50,12 @@ namespace ZenCryptAPI
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = Configuration["Jwt:Issuer"],
                         ValidAudience = Configuration["Jwt:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ?? throw new InvalidOperationException("No jwt token provided!")))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                            Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
+                            throw new InvalidOperationException("No jwt token provided!")))
                     };
                 });
-            
+
             var neo4JClient =
                 new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ??
                                         throw new InvalidOperationException("No neo4j connection string provided!")))
@@ -67,7 +64,7 @@ namespace ZenCryptAPI
                 };
 
             neo4JClient.ConnectAsync().Wait();
-            
+
             services.AddSingleton(Configuration);
             services.AddSingleton<IGraphClient>(neo4JClient);
             services.AddScoped(typeof(ISQLRepository<>), typeof(SQLRepository<>));
@@ -76,7 +73,7 @@ namespace ZenCryptAPI
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
-            
+
             services.AddAuthorization();
             services.AddGraphQLServer()
                 .AddQueryType<Query>().AddFiltering().AddSorting()
@@ -92,7 +89,7 @@ namespace ZenCryptAPI
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
-            
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
 
@@ -100,21 +97,21 @@ namespace ZenCryptAPI
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-            
+
             UpdateDatabase(app);
             app.UseRouting();
             app.UseAuthorization();
             app.UseAuthentication();
-            
+
             app.UsePlayground();
-            
+
             app.UseCors("CurPolicy");
             app.Use((context, next) =>
             {
                 context.Items["__CorsMiddlewareInvoked"] = true;
                 return next();
             });
-            
+
             app.UseEndpoints(x => x.MapGraphQL());
         }
 

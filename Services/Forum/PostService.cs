@@ -6,7 +6,6 @@ using AutoMapper;
 using Domain.DataTransferObjects.Forums.Post;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
-using Domain.Enums;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
 using Domain.Services.Forum;
@@ -18,14 +17,17 @@ namespace Services.Forum
     public class PostService : IPostService
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly IMapper _mapper;
         private readonly INeoRepository<Post> _neoRepository;
         private readonly ISQLRepository<Post> _postIsqlRepository;
         private readonly ISQLRepository<UserDislikedPost> _userDislikedIsqlRepository;
         private readonly ISQLRepository<UserLikedPost> _userLikedIsqlRepository;
         private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
-        private readonly IMapper _mapper;
 
-        public PostService(IAuthenticationService authenticationService, INeoRepository<Post> neoRepository, ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, ISQLRepository<UserLikedPost> userLikedIsqlRepository, ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, IMapper mapper)
+        public PostService(IAuthenticationService authenticationService, INeoRepository<Post> neoRepository,
+            ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository,
+            ISQLRepository<UserLikedPost> userLikedIsqlRepository,
+            ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, IMapper mapper)
         {
             _authenticationService = authenticationService;
             _neoRepository = neoRepository;
@@ -43,13 +45,13 @@ namespace Services.Forum
         public async Task<PostDTO> CreatePost(CreatePostDTO createPost)
         {
             // Add user to post
-            var post = new Post()
+            var post = new Post
             {
                 Title = createPost.Title,
                 Description = createPost.Description,
                 UploadedUserId = createPost.UserId
             };
-            
+
             // Inserts post into database
             var insertedPost = await _postIsqlRepository.Insert(post);
 
@@ -57,7 +59,8 @@ namespace Services.Forum
             await _neoRepository.Insert(insertedPost);
 
             // Insert relation into graph database
-            await _neoRepository.CreateRelation(new Domain.Entities.SQL.User.User(){Id = createPost.UserId}, NEORelation.POSTED, insertedPost);
+            await _neoRepository.CreateRelation(new Domain.Entities.SQL.User.User {Id = createPost.UserId},
+                NEORelation.POSTED, insertedPost);
 
             // returns the newly created post
             return _mapper.Map<PostDTO>(insertedPost);
@@ -121,24 +124,6 @@ namespace Services.Forum
         }
 
         /**
-         * Get a single post by id
-         * Returns a single post
-         */
-        public async Task<PostDTO> GetPost(Guid postId)
-        {
-            // Find post in database
-            var foundPost = await _postIsqlRepository.Get(postId);
-
-            // Check if post is null
-            if (foundPost == null)
-                // Throw not found exception if post has not been found
-                throw new NotFoundException("post");
-
-            // Returns single found post
-            return _mapper.Map<PostDTO>(foundPost);
-        }
-
-        /**
          * Get all posts from database
          * Returns all posts from database
          */
@@ -167,7 +152,7 @@ namespace Services.Forum
 
             // Get User from database
             var dbUser = await _userSqlRepository.Get(userId);
-            
+
             // Create UserLike object
             var userLike = new UserLikedPost
             {
@@ -344,6 +329,24 @@ namespace Services.Forum
             await _neoRepository.RemoveRelation(dbUser, NEORelation.DISLIKED, foundPost);
 
             // Return updated post
+            return _mapper.Map<PostDTO>(foundPost);
+        }
+
+        /**
+         * Get a single post by id
+         * Returns a single post
+         */
+        public async Task<PostDTO> GetPost(Guid postId)
+        {
+            // Find post in database
+            var foundPost = await _postIsqlRepository.Get(postId);
+
+            // Check if post is null
+            if (foundPost == null)
+                // Throw not found exception if post has not been found
+                throw new NotFoundException("post");
+
+            // Returns single found post
             return _mapper.Map<PostDTO>(foundPost);
         }
     }

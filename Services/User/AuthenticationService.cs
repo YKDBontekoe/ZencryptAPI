@@ -181,7 +181,7 @@ namespace Services.User
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-            var dbUser = new Domain.Entities.SQL.User.User()
+            var dbUser = new Domain.Entities.SQL.User.User
             {
                 Email = user.Email,
                 Password = user.Password,
@@ -189,7 +189,7 @@ namespace Services.User
                 LastName = user.LastName,
                 UserName = user.UserName
             };
-            
+
             // Insert user into SQL database
             await _userSqlRepository.Insert(dbUser);
 

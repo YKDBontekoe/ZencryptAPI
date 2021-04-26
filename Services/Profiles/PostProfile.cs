@@ -13,7 +13,6 @@ namespace Services.Profiles
                 .ForMember(c => c.Dislikes, opt => opt.MapFrom(c => c.DislikedByUsers.Count))
                 .ForMember(c => c.Views, opt => opt.MapFrom(c => c.ViewedByUsers.Count))
                 .PreserveReferences().ReverseMap();
-            
         }
     }
 }

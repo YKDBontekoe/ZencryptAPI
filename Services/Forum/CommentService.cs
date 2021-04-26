@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
+using Domain.DataTransferObjects.Forums.Comment;
 using Domain.Entities.SQL.Forums;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
@@ -14,69 +15,63 @@ namespace Services.Forum
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly ISQLRepository<Comment> _commentIsqlRepository;
+        private readonly IMapper _mapper;
         private readonly INeoRepository<Comment> _neoCommentRepository;
         private readonly INeoRepository<Post> _neoPostRepository;
         private readonly INeoRepository<Domain.Entities.SQL.User.User> _neoUserRepository;
         private readonly ISQLRepository<Post> _postIsqlRepository;
 
         public CommentService(IAuthenticationService authenticationService,
-            ISQLRepository<Comment> commentIsqlRepository, ISQLRepository<Post> postIsqlRepository,
-            INeoRepository<Comment> neoCommentRepository, INeoRepository<Post> neoPostRepository,
-            INeoRepository<Domain.Entities.SQL.User.User> neoUserRepository)
+            ISQLRepository<Comment> commentIsqlRepository, INeoRepository<Comment> neoCommentRepository,
+            INeoRepository<Post> neoPostRepository, INeoRepository<Domain.Entities.SQL.User.User> neoUserRepository,
+            ISQLRepository<Post> postIsqlRepository, IMapper mapper)
         {
             _authenticationService = authenticationService;
             _commentIsqlRepository = commentIsqlRepository;
-            _postIsqlRepository = postIsqlRepository;
             _neoCommentRepository = neoCommentRepository;
             _neoPostRepository = neoPostRepository;
             _neoUserRepository = neoUserRepository;
+            _postIsqlRepository = postIsqlRepository;
+            _mapper = mapper;
         }
 
         /**
          * Create a comment and add the new comment to an existing post
          * Returns the newly created comment
          */
-        public async Task<Comment> CreateCommentToPost(Comment comment, Guid postId, string token)
+        public async Task<CommentDTO> CreateCommentToPost(CreateCommentDTO comment)
         {
             // Get post from database by EntityId
-            var foundPost = await _postIsqlRepository.Get(postId);
+            var foundPost = await _postIsqlRepository.Get(comment.PostId);
 
             // Check if post is in database
             if (foundPost == null)
                 // Throw error if post is not found/ null
                 throw new NotFoundException("Post");
 
-            // Token validation
-            var isValidToken = _authenticationService.IsValidToken(token);
-
-            // Check if token is valid
-            if (!isValidToken)
-                // Throw an exception if token is invalid
-                throw new InvalidTokenException();
-
-            // Get user from token
-            var userFromToken = await _authenticationService.GetUserFromToken(token);
-
-            // Add userId to comment
-            comment.UploadedUserId = userFromToken.Id;
-
-            // Add postId to comment
-            comment.PostId = postId;
+            // Create Comment Object
+            var dbComment = new Comment
+            {
+                Description = comment.Description,
+                PostId = comment.PostId,
+                UploadedUserId = comment.UserId
+            };
 
             // Create new comment in sql database
-            await _commentIsqlRepository.Insert(comment);
-            await _neoPostRepository.CreateRelation(userFromToken, NEORelation.COMMENTED, comment);
-            await _neoPostRepository.CreateRelation(foundPost, NEORelation.COMMENT, comment);
+            await _commentIsqlRepository.Insert(dbComment);
+            await _neoPostRepository.CreateRelation(new Domain.Entities.SQL.User.User {Id = comment.UserId},
+                NEORelation.COMMENTED, dbComment);
+            await _neoPostRepository.CreateRelation(foundPost, NEORelation.COMMENT, dbComment);
 
             // Returns new comment
-            return comment;
+            return _mapper.Map<CommentDTO>(dbComment);
         }
 
         /**
          * Update a comment and check permission of comment
          * Returns updated comment
          */
-        public async Task<Comment> UpdateComment(Guid commentId, Comment comment, string token)
+        public async Task<CommentDTO> UpdateComment(Guid commentId, Comment comment, string token)
         {
             // Find comment in database
             var foundComment = await _commentIsqlRepository.Get(commentId);
@@ -103,14 +98,16 @@ namespace Services.Forum
                 throw new NoPermissionException("Comment");
 
             // Update and return updated comment
-            return await _commentIsqlRepository.Update(comment);
+            var dbComment = await _commentIsqlRepository.Update(comment);
+
+            return _mapper.Map<CommentDTO>(dbComment);
         }
 
         /**
          * Deletes a single comment by id
          * Returns deleted comment
          */
-        public async Task<Comment> DeleteComment(Guid commentId, string token)
+        public async Task<CommentDTO> DeleteComment(Guid commentId, string token)
         {
             // Get comment from database
             var foundComment = await _commentIsqlRepository.Get(commentId);
@@ -139,32 +136,18 @@ namespace Services.Forum
             // Delete comment and return deleted comment
             await _commentIsqlRepository.Delete(foundComment);
             await _neoCommentRepository.Delete(foundComment);
-            return foundComment;
+            return _mapper.Map<CommentDTO>(foundComment);
+            ;
         }
 
         /**
          * Returns a single comment by id
          */
-        public Task<Comment> GetComment(Guid commentId)
+        public async Task<CommentDTO> GetComment(Guid commentId)
         {
-            return _commentIsqlRepository.Get(commentId);
-        }
-
-        /**
-         * Get all comments from a specific post
-         */
-        public async Task<IEnumerable<Comment>> GetCommentFromPost(Guid postId)
-        {
-            // Get post from database by EntityId
-            var foundPost = await _postIsqlRepository.Get(postId);
-
-            // Check if post is in database
-            if (foundPost == null)
-                // Throw error if post is not found/ null
-                throw new NotFoundException("Post");
-
-            // Returns all comments from a post
-            return foundPost.Comments;
+            var comment = await _commentIsqlRepository.Get(commentId);
+            return _mapper.Map<CommentDTO>(comment);
+            ;
         }
     }
 }
