@@ -9,6 +9,8 @@ namespace Services.Profiles
         public UserProfile()
         {
             CreateMap<SafeUserDTO, Domain.Entities.SQL.User.User>().ReverseMap();
+            CreateMap<FollowDTO, Domain.Entities.SQL.User.User>().ReverseMap();
+            CreateMap<UnfollowDTO, Domain.Entities.SQL.User.User>().ReverseMap();
             CreateMap<Domain.Entities.SQL.User.User, InfoUserDTO>()
                 .ForMember(c => c.Viewed, opt => opt.MapFrom(c => c.ViewedPosts.Count(c => c.IsActive)))
                 .ForMember(c => c.LikesGivenToComments, opt => opt.MapFrom(c => c.LikedComments.Count(c => c.IsActive)))

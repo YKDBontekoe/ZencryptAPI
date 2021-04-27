@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.Forums.Post;
+using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.Entities.SQL.Forums;
 
 namespace Domain.Services.Forum
 {
     public interface IPostService
     {
-        Task<PostDTO> CreatePost(CreatePostDTO createPost, string token);
+        Task<PostDTO> CreatePost(CreatePostInput createPost, string token);
         Task<PostDTO> UpdatePost(Guid postId, Post post, string token);
         Task<PostDTO> DeletePost(Guid postId, string token);
         Task<IEnumerable<PostDTO>> GetPosts();

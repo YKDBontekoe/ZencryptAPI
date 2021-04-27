@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.DataTransferObjects.Forums.Comment;
+using Domain.DataTransferObjects.Forums.Comment.Input;
 using Domain.Entities.SQL.Forums;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
@@ -39,7 +40,7 @@ namespace Services.Forum
          * Create a comment and add the new comment to an existing post
          * Returns the newly created comment
          */
-        public async Task<CommentDTO> CreateCommentToPost(CreateCommentDTO comment, string token)
+        public async Task<CommentDTO> CreateCommentToPost(CreateCommentInput comment, string token)
         {
             // Get post from database by EntityId
             var foundPost = await _postIsqlRepository.Get(comment.PostId);
@@ -48,7 +49,7 @@ namespace Services.Forum
             if (foundPost == null)
                 // Throw error if post is not found/ null
                 throw new NotFoundException("Post");
-            
+
             // Token validation
             var isValidToken = _authenticationService.IsValidToken(token);
 
@@ -59,7 +60,7 @@ namespace Services.Forum
 
             // Get user from token
             var userFromToken = await _authenticationService.GetUserFromToken(token);
-            
+
             // Create Comment Object
             var dbComment = new Comment
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.DataTransferObjects.Forums.Post;
+using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
 using Domain.Enums.Neo;
@@ -42,7 +43,7 @@ namespace Services.Forum
          * Creates a post using an user EntityId
          * Returns the uploaded post
          */
-        public async Task<PostDTO> CreatePost(CreatePostDTO createPost, string token)
+        public async Task<PostDTO> CreatePost(CreatePostInput createPost, string token)
         {
             var userFromToken = await TokenValidation(token);
             // Add user to post
@@ -58,7 +59,7 @@ namespace Services.Forum
 
             // insert into graph database
             await _neoRepository.Insert(insertedPost);
-            
+
             // Insert relation into graph database
             await _neoRepository.CreateRelation(userFromToken,
                 NEORelation.POSTED, insertedPost);
@@ -141,11 +142,11 @@ namespace Services.Forum
          * Add like from a user
          * Returns liked post
          */
-        public async Task<PostDTO> UserLikePost(Guid postId, string token)  
+        public async Task<PostDTO> UserLikePost(Guid postId, string token)
         {
             // Get user from token
             var userFromToken = await TokenValidation(token);
-            
+
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
 
@@ -187,7 +188,7 @@ namespace Services.Forum
         {
             // Get user from token
             var userFromToken = await TokenValidation(token);
-            
+
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
 
@@ -229,7 +230,7 @@ namespace Services.Forum
         {
             // Get user from token
             var userFromToken = await TokenValidation(token);
-            
+
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
 
@@ -271,7 +272,7 @@ namespace Services.Forum
         {
             // Get user from token
             var userFromToken = await TokenValidation(token);
-            
+
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
 
@@ -302,11 +303,11 @@ namespace Services.Forum
          * Removes like on post from a user
          * Returns un- liked post
          */
-        public async Task<PostDTO> UndoUserDislikePost(Guid postId, string token)   
+        public async Task<PostDTO> UndoUserDislikePost(Guid postId, string token)
         {
             // Get user from token
             var userFromToken = await TokenValidation(token);
-            
+
             // Find post    
             var foundPost = await _postIsqlRepository.Get(postId);
 

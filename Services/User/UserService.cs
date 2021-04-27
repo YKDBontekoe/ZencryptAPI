@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Domain.DataTransferObjects.User;
+using Domain.DataTransferObjects.User.Input;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Enums.Neo;
@@ -15,16 +18,18 @@ namespace Services.User
     public class UserService : IUserService
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly IMapper _mapper;
         private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
         private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
 
-        public UserService(ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository,
+        public UserService(IAuthenticationService authenticationService,
             INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository,
-            IAuthenticationService authenticationService)
+            ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, IMapper mapper)
         {
-            _userSqlRepository = userSqlRepository;
-            _userNeoRepository = userNeoRepository;
             _authenticationService = authenticationService;
+            _userNeoRepository = userNeoRepository;
+            _userSqlRepository = userSqlRepository;
+            _mapper = mapper;
         }
 
         public Task<Domain.Entities.SQL.User.User> GetUserByEmail(string userEmail)
@@ -95,13 +100,13 @@ namespace Services.User
             throw new NotImplementedException();
         }
 
-        public async Task<Domain.Entities.SQL.User.User> FollowUser(string userToken, Guid userIdToFollow)
+        public async Task<FollowDTO> FollowUser(string userToken, CreateFollowInput createFollowInput)
         {
             // Validates Token
             ValidateToken(userToken);
 
             // Find user
-            var foundUser = await _userSqlRepository.Get(userIdToFollow);
+            var foundUser = await _userSqlRepository.Get(createFollowInput.UserToFollowId);
 
             // Check if post is null
             if (foundUser == null)
@@ -115,16 +120,16 @@ namespace Services.User
             await _userNeoRepository.CreateRelation(tokenUser, NEORelation.FOLLOWED, foundUser);
 
             // Return followed user
-            return foundUser;
+            return _mapper.Map<FollowDTO>(foundUser);
         }
 
-        public async Task<Domain.Entities.SQL.User.User> UnFollowUser(string userToken, Guid userIdToFollow)
+        public async Task<UnfollowDTO> UnFollowUser(string userToken, RemoveFollowInput unfollowInput)
         {
             // Validates Token
             ValidateToken(userToken);
 
             // Find user
-            var foundUser = await _userSqlRepository.Get(userIdToFollow);
+            var foundUser = await _userSqlRepository.Get(unfollowInput.UserToFollowId);
 
             // Check if post is null
             if (foundUser == null)
@@ -138,7 +143,7 @@ namespace Services.User
             await _userNeoRepository.RemoveRelation(tokenUser, NEORelation.FOLLOWED, foundUser);
 
             // Return un- followed user
-            return foundUser;
+            return _mapper.Map<UnfollowDTO>(foundUser);
         }
 
         private void ValidateToken(string token)

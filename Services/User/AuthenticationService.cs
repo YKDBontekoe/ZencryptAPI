@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.DataTransferObjects.User;
+using Domain.DataTransferObjects.User.Input;
 using Domain.Exceptions;
 using Domain.Services.Repositories;
 using Domain.Services.User;
@@ -142,7 +142,7 @@ namespace Services.User
          * Authenticates given user in database
          * Returns user result from database
          */
-        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(LoginUserDTO user)
+        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(LoginUserInput user)
         {
             // Find user in database by email
             var dbUsers = await _userSqlRepository.Filter(u => u.Email == user.Email);
@@ -169,7 +169,7 @@ namespace Services.User
          * Insert user into database
          * Returns inserted user from database
          */
-        public async Task<Domain.Entities.SQL.User.User> InsertUser(RegisterUserDTO user)
+        public async Task<Domain.Entities.SQL.User.User> InsertUser(RegisterUserInput user)
         {
             // Find user by email in database
             var emailUserResult = await _userSqlRepository.Filter(u => u.Email == user.Email);

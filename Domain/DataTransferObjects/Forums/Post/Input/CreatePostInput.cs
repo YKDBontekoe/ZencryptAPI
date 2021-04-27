@@ -1,6 +1,6 @@
-﻿namespace Domain.DataTransferObjects.Forums.Post
+﻿namespace Domain.DataTransferObjects.Forums.Post.Input
 {
-    public class UpdatePostDTO
+    public class CreatePostInput
     {
         public string Title { get; set; }
         public string? Description { get; set; }
