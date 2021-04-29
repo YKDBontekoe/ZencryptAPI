@@ -36,8 +36,7 @@ namespace ZenCryptAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<EntityContext>(options =>
-                options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ??
-                                     throw new InvalidOperationException("No sql connection string provided!"))
+                options.UseSqlServer("Data Source=192.168.1.117,1433;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;")
                     .UseLazyLoadingProxies());
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,14 +51,12 @@ namespace ZenCryptAPI
                         ValidIssuer = Configuration["Jwt:Issuer"],
                         ValidAudience = Configuration["Jwt:Issuer"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                            Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
-                            throw new InvalidOperationException("No jwt token provided!")))
+                            "testa"))
                     };
                 });
 
             var neo4JClient =
-                new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ??
-                                        throw new InvalidOperationException("No neo4j connection string provided!")))
+                new GraphClient(new Uri("http://192.168.1.117:7474/"))
                 {
                     JsonContractResolver = new CamelCasePropertyNamesContractResolver()
                 };
@@ -74,6 +71,7 @@ namespace ZenCryptAPI
             services.AddScoped(typeof(INeoRepository<>), typeof(NeoRepository<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IForumService, ForumService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
 

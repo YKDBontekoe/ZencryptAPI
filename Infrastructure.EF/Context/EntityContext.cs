@@ -18,6 +18,7 @@ namespace Infrastructure.EF.Context
             UserMap.CreateMap(modelBuilder.Entity<User>());
             PostMap.CreateMap(modelBuilder.Entity<Post>());
             CommentMap.CreateMap(modelBuilder.Entity<Comment>());
+            ForumMap.CreateMap(modelBuilder.Entity<Forum>());
         }
     }
 }

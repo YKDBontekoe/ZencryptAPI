@@ -8,6 +8,7 @@
         VIEWED,
         POSTED,
         COMMENTED,
-        COMMENT
+        COMMENT,
+        CREATED
     }
 }

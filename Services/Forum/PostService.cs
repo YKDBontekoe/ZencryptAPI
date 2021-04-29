@@ -7,6 +7,7 @@ using Domain.DataTransferObjects.Forums.Post;
 using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
+using Domain.Entities.SQL.User.Links;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
 using Domain.Services.Forum;
@@ -45,7 +46,7 @@ namespace Services.Forum
          */
         public async Task<PostDTO> CreatePost(CreatePostInput createPost, string token)
         {
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
             // Add user to post
             var post = new Post
             {
@@ -75,7 +76,7 @@ namespace Services.Forum
         public async Task<PostDTO> UpdatePost(Guid postId, Post post, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post in database
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -102,7 +103,7 @@ namespace Services.Forum
         public async Task<PostDTO> DeletePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post in database
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -145,7 +146,7 @@ namespace Services.Forum
         public async Task<PostDTO> UserLikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -187,7 +188,7 @@ namespace Services.Forum
         public async Task<PostDTO> UserDislikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -229,7 +230,7 @@ namespace Services.Forum
         public async Task<PostDTO> UserViewPost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -271,7 +272,7 @@ namespace Services.Forum
         public async Task<PostDTO> UndoUserLikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -306,7 +307,7 @@ namespace Services.Forum
         public async Task<PostDTO> UndoUserDislikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenValidation(token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
 
             // Find post    
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -350,20 +351,6 @@ namespace Services.Forum
 
             // Returns single found post
             return _mapper.Map<PostDTO>(foundPost);
-        }
-
-        private Task<Domain.Entities.SQL.User.User> TokenValidation(string token)
-        {
-            // Token validation
-            var isValidToken = _authenticationService.IsValidToken(token);
-
-            // Check if token is valid
-            if (!isValidToken)
-                // Throw an exception if token is invalid
-                throw new InvalidTokenException();
-
-            // Get user from token
-            return _authenticationService.GetUserFromToken(token);
         }
     }
 }

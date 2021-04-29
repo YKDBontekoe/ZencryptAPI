@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.Forums.Comment;
 using Domain.DataTransferObjects.Forums.Comment.Input;
+using Domain.DataTransferObjects.Forums.Forum;
+using Domain.DataTransferObjects.Forums.Forum.Input;
 using Domain.DataTransferObjects.Forums.Post;
 using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.DataTransferObjects.User;
@@ -40,48 +42,56 @@ namespace ZenCryptAPI.Graphql
         {
             return await authenticationService.InsertUser(registerUser);
         }
-
+        
+        // ------------------- Forum ---------------------
+        [Authorize]
+        public async Task<ForumDTO> CreateForum([Service] IForumService forumService,
+            [Service] IHttpContextAccessor contextAccessor, CreateForumInput createForum)
+        {
+            return await forumService.CreateForum(createForum, TokenHandler.GetToken(contextAccessor));
+        }
+        
         // ------------------- Post ---------------------
         [Authorize]
         public async Task<PostDTO> CreatePost([Service] IPostService postService,
             [Service] IHttpContextAccessor contextAccessor, CreatePostInput createPost)
         {
-            return await postService.CreatePost(createPost, GetToken(contextAccessor));
+            return await postService.CreatePost(createPost, TokenHandler.GetToken(contextAccessor));
         }
 
         [Authorize]
         public async Task<PostDTO> LikePost([Service] IPostService postService,
             [Service] IHttpContextAccessor contextAccessor, UserInteractPostInput interactInput)
         {
-            return await postService.UserLikePost(interactInput.PostId, GetToken(contextAccessor));
+            return await postService.UserLikePost(interactInput.PostId, TokenHandler.GetToken(contextAccessor));
         }
 
         [Authorize]
         public async Task<PostDTO> UndoLikePost([Service] IPostService postService,
             [Service] IHttpContextAccessor contextAccessor, UserInteractPostInput interactInput)
         {
-            return await postService.UndoUserLikePost(interactInput.PostId, GetToken(contextAccessor));
+            return await postService.UndoUserLikePost(interactInput.PostId, TokenHandler.GetToken(contextAccessor));
         }
 
         [Authorize]
         public async Task<PostDTO> DislikePost([Service] IPostService postService,
             [Service] IHttpContextAccessor contextAccessor, UserInteractPostInput interactInput)
         {
-            return await postService.UserDislikePost(interactInput.PostId, GetToken(contextAccessor));
+            return await postService.UserDislikePost(interactInput.PostId, TokenHandler.GetToken(contextAccessor));
         }
 
         [Authorize]
         public async Task<PostDTO> UndoDislikePost([Service] IPostService postService,
             [Service] IHttpContextAccessor contextAccessor, UserInteractPostInput interactInput)
         {
-            return await postService.UndoUserDislikePost(interactInput.PostId, GetToken(contextAccessor));
+            return await postService.UndoUserDislikePost(interactInput.PostId, TokenHandler.GetToken(contextAccessor));
         }
 
         [Authorize]
         public async Task<PostDTO> ViewPost([Service] IPostService postService,
             [Service] IHttpContextAccessor contextAccessor, UserInteractPostInput interactInput)
         {
-            return await postService.UserViewPost(interactInput.PostId, GetToken(contextAccessor));
+            return await postService.UserViewPost(interactInput.PostId, TokenHandler.GetToken(contextAccessor));
         }
 
         // ------------------- Comment ---------------------
@@ -89,7 +99,7 @@ namespace ZenCryptAPI.Graphql
         public async Task<CommentDTO> CreateComment([Service] ICommentService commentService,
             [Service] IHttpContextAccessor contextAccessor, CreateCommentInput comment)
         {
-            return await commentService.CreateCommentToPost(comment, GetToken(contextAccessor));
+            return await commentService.CreateCommentToPost(comment, TokenHandler.GetToken(contextAccessor));
         }
 
         // ------------------- Following ---------------------
@@ -97,27 +107,14 @@ namespace ZenCryptAPI.Graphql
         public async Task<FollowDTO> FollowUser([Service] IUserService userService,
             [Service] IHttpContextAccessor contextAccessor, CreateFollowInput follow)
         {
-            return await userService.FollowUser(GetToken(contextAccessor), follow);
+            return await userService.FollowUser(TokenHandler.GetToken(contextAccessor), follow);
         }
 
         [Authorize]
         public async Task<UnfollowDTO> UnfollowUser([Service] IUserService userService,
             [Service] IHttpContextAccessor contextAccessor, RemoveFollowInput unfollow)
         {
-            return await userService.UnFollowUser(GetToken(contextAccessor), unfollow);
-        }
-
-        private static string GetToken(IHttpContextAccessor contextAccessor)
-        {
-            try
-            {
-                return contextAccessor.HttpContext.Request.Headers.SingleOrDefault(c => c.Key.Equals("Authorization"))
-                    .Value.ToString().Split(" ")[1];
-            }
-            catch (Exception e)
-            {
-                throw new InvalidTokenException();
-            }
+            return await userService.UnFollowUser(TokenHandler.GetToken(contextAccessor), unfollow);
         }
     }
 }

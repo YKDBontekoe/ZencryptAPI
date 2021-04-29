@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Domain.Entities.SQL.User;
+using Domain.Entities.SQL.User.Links;
 
 namespace Domain.Entities.SQL.Forums
 {
