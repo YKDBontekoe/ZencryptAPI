@@ -6,7 +6,6 @@ using AutoMapper;
 using Domain.DataTransferObjects.Forums.Post;
 using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.Entities.SQL.Forums;
-using Domain.Entities.SQL.User;
 using Domain.Entities.SQL.User.Links;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
@@ -46,7 +45,7 @@ namespace Services.Forum
          */
         public async Task<PostDTO> CreatePost(CreatePostInput createPost, string token)
         {
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
             // Add user to post
             var post = new Post
             {
@@ -76,7 +75,7 @@ namespace Services.Forum
         public async Task<PostDTO> UpdatePost(Guid postId, Post post, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post in database
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -103,7 +102,7 @@ namespace Services.Forum
         public async Task<PostDTO> DeletePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post in database
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -146,7 +145,7 @@ namespace Services.Forum
         public async Task<PostDTO> UserLikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -188,7 +187,7 @@ namespace Services.Forum
         public async Task<PostDTO> UserDislikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -230,7 +229,7 @@ namespace Services.Forum
         public async Task<PostDTO> UserViewPost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -272,7 +271,7 @@ namespace Services.Forum
         public async Task<PostDTO> UndoUserLikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post
             var foundPost = await _postIsqlRepository.Get(postId);
@@ -307,7 +306,7 @@ namespace Services.Forum
         public async Task<PostDTO> UndoUserDislikePost(Guid postId, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find post    
             var foundPost = await _postIsqlRepository.Get(postId);

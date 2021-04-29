@@ -36,7 +36,8 @@ namespace ZenCryptAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<EntityContext>(options =>
-                options.UseSqlServer("Data Source=192.168.1.117,1433;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;")
+                options.UseSqlServer(
+                        "Data Source=192.168.1.117,1433;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;")
                     .UseLazyLoadingProxies());
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

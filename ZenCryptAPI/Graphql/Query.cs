@@ -19,7 +19,7 @@ namespace ZenCryptAPI.Graphql
         {
             return await postService.GetPosts() as IQueryable<PostDTO>;
         }
-        
+
         [UsePaging]
         [UseFiltering]
         [UseSorting]

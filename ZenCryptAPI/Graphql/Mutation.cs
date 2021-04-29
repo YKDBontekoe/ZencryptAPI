@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Domain.DataTransferObjects.Forums.Comment;
 using Domain.DataTransferObjects.Forums.Comment.Input;
 using Domain.DataTransferObjects.Forums.Forum;
@@ -10,7 +8,6 @@ using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.DataTransferObjects.User;
 using Domain.DataTransferObjects.User.Input;
 using Domain.Entities.SQL.User;
-using Domain.Exceptions;
 using Domain.Services.Forum;
 using Domain.Services.User;
 using HotChocolate;
@@ -42,7 +39,7 @@ namespace ZenCryptAPI.Graphql
         {
             return await authenticationService.InsertUser(registerUser);
         }
-        
+
         // ------------------- Forum ---------------------
         [Authorize]
         public async Task<ForumDTO> CreateForum([Service] IForumService forumService,
@@ -50,7 +47,7 @@ namespace ZenCryptAPI.Graphql
         {
             return await forumService.CreateForum(createForum, TokenHandler.GetToken(contextAccessor));
         }
-        
+
         // ------------------- Post ---------------------
         [Authorize]
         public async Task<PostDTO> CreatePost([Service] IPostService postService,

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.Forums.Forum;
 using Domain.DataTransferObjects.Forums.Forum.Input;
-using Domain.DataTransferObjects.Forums.Post;
 
 namespace Domain.Services.Forum
 {

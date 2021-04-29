@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Domain.DataTransferObjects.Forums.Forum;
 using Domain.DataTransferObjects.Forums.Forum.Input;
-using Domain.DataTransferObjects.Forums.Post;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
 using Domain.Services.Forum;
@@ -16,26 +15,28 @@ namespace Services.Forum
 {
     public class ForumService : IForumService
     {
-        private readonly ISQLRepository<Domain.Entities.SQL.Forums.Forum> _forumSqlRepository;
         private readonly IAuthenticationService _authenticationService;
-        private readonly IMapper _mapper;
         private readonly INeoRepository<Domain.Entities.SQL.Forums.Forum> _forumNeoRepository;
+        private readonly ISQLRepository<Domain.Entities.SQL.Forums.Forum> _forumSqlRepository;
+        private readonly IMapper _mapper;
 
-        public ForumService(ISQLRepository<Domain.Entities.SQL.Forums.Forum> forumSqlRepository, IAuthenticationService authenticationService, IMapper mapper, INeoRepository<Domain.Entities.SQL.Forums.Forum> forumNeoRepository)
+        public ForumService(ISQLRepository<Domain.Entities.SQL.Forums.Forum> forumSqlRepository,
+            IAuthenticationService authenticationService, IMapper mapper,
+            INeoRepository<Domain.Entities.SQL.Forums.Forum> forumNeoRepository)
         {
             _forumSqlRepository = forumSqlRepository;
             _authenticationService = authenticationService;
             _mapper = mapper;
             _forumNeoRepository = forumNeoRepository;
         }
-        
+
         /**
          * Creates a forum using an user EntityId
          * Returns the uploaded forum
          */
         public async Task<ForumDTO> CreateForum(CreateForumInput createForum, string token)
         {
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
             // Add user to forum
             var forum = new Domain.Entities.SQL.Forums.Forum
             {
@@ -56,7 +57,7 @@ namespace Services.Forum
             // returns the newly created forum
             return _mapper.Map<ForumDTO>(insertedForum);
         }
-        
+
         /**
          * Updates a forum using forum EntityId
          * Returns updated forum
@@ -64,7 +65,7 @@ namespace Services.Forum
         public async Task<ForumDTO> UpdateForum(Guid forumId, Domain.Entities.SQL.Forums.Forum forum, string token)
         {
             // Get user from token
-            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(this._authenticationService, token);
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
 
             // Find forum in database
             var foundForum = await _forumSqlRepository.Get(forumId);
@@ -83,7 +84,7 @@ namespace Services.Forum
             // Updates forum in database and returns the updated post
             return _mapper.Map<ForumDTO>(forum);
         }
-        
+
         /**
          * Deletes forum by forum id
          * Returns deleted forum
@@ -113,7 +114,7 @@ namespace Services.Forum
             // returns the deleted forum
             return _mapper.Map<ForumDTO>(deletedPost);
         }
-        
+
         /**
          * Get all forums from database
          * Returns all forums from database

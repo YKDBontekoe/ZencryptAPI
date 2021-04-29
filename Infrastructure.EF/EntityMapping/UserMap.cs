@@ -45,17 +45,17 @@ namespace Infrastructure.EF.EntityMapping
                 .WithOne(c => c.User)
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
-            
+
             entityBuilder.HasMany(u => u.CreatedForums)
                 .WithOne(c => c.CreatedByUser)
                 .HasForeignKey(f => f.CreatedByUserId)
                 .OnDelete(DeleteBehavior.NoAction);
-            
+
             entityBuilder.HasMany(u => u.FollowingForums)
                 .WithOne(c => c.User)
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
-            
+
             entityBuilder.HasMany(u => u.HiddenForums)
                 .WithOne(c => c.User)
                 .HasForeignKey(f => f.UserId)
