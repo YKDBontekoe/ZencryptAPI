@@ -182,6 +182,72 @@ namespace Services.Forum
             return _mapper.Map<ForumDTO>(foundForum);
         }
 
+        /*
+         * Let an user hide a forum
+         * Returns hidden forum
+         */
+        public async Task<ForumDTO> HideForum(Guid forumId, string token)
+        {
+            // Get user from token
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
+
+            // Find forum in database
+            var foundForum = await _forumSqlRepository.Get(forumId);
+
+            // Check if forum exists
+            if (foundForum == null)
+                // Throw an exception if forum has not been found
+                throw new NotFoundException("Forum");
+            
+            // Check if user has not already hidden the forum
+            if (foundForum.HiddenByUsers.Any(c => c.UserId == userFromToken.Id))
+                // Throw CannotPerformActionException when user has already hidden this forum
+                throw new CannotPerformActionException("You have already hidden this forum");
+            
+            // Add hidden entry to database
+            foundForum.HiddenByUsers.Add(new UserHiddenForum{User = userFromToken, Forum = foundForum});
+            await this._forumSqlRepository.Update(foundForum);
+
+            // Create relation in graph database
+            await _forumNeoRepository.CreateRelation(userFromToken, NEORelation.HIDDEN, foundForum);
+            
+            // Return mapped found forum
+            return _mapper.Map<ForumDTO>(foundForum);
+        }
+        
+        /*
+         * Let an user un- hide a forum
+         * Returns unhidden forum
+         */
+        public async Task<ForumDTO> UnHideForum(Guid forumId, string token)
+        {
+            // Get user from token
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
+
+            // Find forum in database
+            var foundForum = await _forumSqlRepository.Get(forumId);
+
+            // Check if forum exists
+            if (foundForum == null)
+                // Throw an exception if forum has not been found
+                throw new NotFoundException("Forum");
+            
+            // Check if user has not already un- hidden the forum
+            if (foundForum.HiddenByUsers.All(c => c.UserId != userFromToken.Id))
+                // Throw CannotPerformActionException when user has already hidden this forum
+                throw new CannotPerformActionException("You have already un- hidden this forum");
+            
+            // Remove hidden entry to database
+            foundForum.HiddenByUsers.Remove(new UserHiddenForum{User = userFromToken, Forum = foundForum});
+            await this._forumSqlRepository.Update(foundForum);
+
+            // Remove relation in graph database
+            await _forumNeoRepository.RemoveRelation(userFromToken, NEORelation.HIDDEN, foundForum);
+            
+            // Return mapped found forum
+            return _mapper.Map<ForumDTO>(foundForum);
+        }
+
         /**
          * Get all forums from database
          * Returns all forums from database

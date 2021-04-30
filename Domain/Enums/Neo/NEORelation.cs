@@ -9,6 +9,7 @@
         POSTED,
         COMMENTED,
         COMMENT,
-        CREATED
+        CREATED,
+        HIDDEN
     }
 }
