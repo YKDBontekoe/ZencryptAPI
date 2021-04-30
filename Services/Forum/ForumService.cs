@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Domain.DataTransferObjects.Forums.Forum;
 using Domain.DataTransferObjects.Forums.Forum.Input;
+using Domain.Entities.SQL.User.Links;
 using Domain.Enums.Neo;
 using Domain.Exceptions;
 using Domain.Services.Forum;
@@ -113,6 +114,72 @@ namespace Services.Forum
 
             // returns the deleted forum
             return _mapper.Map<ForumDTO>(deletedPost);
+        }
+        
+        /*
+         * Let an user follow a forum
+         * Returns followed forum
+         */
+        public async Task<ForumDTO> FollowForum(Guid forumId, string token)
+        {
+            // Get user from token
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
+
+            // Find forum in database
+            var foundForum = await _forumSqlRepository.Get(forumId);
+
+            // Check if forum exists
+            if (foundForum == null)
+                // Throw an exception if forum has not been found
+                throw new NotFoundException("Forum");
+            
+            // Check if user is not already following the forum
+            if (foundForum.FollowedByUsers.Any(c => c.UserId == userFromToken.Id))
+                // Throw CannotPerformActionException when user has already followed this forum
+                throw new CannotPerformActionException("You have already followed this forum");
+            
+            // Add forum to user follow in database
+            foundForum.FollowedByUsers.Add(new UserFollowingForum{User = userFromToken, Forum = foundForum});
+            await this._forumSqlRepository.Update(foundForum);
+
+            // Add relation in graph database
+            await _forumNeoRepository.CreateRelation(userFromToken, NEORelation.FOLLOWED, foundForum);
+            
+            // Return mapped found forum
+            return _mapper.Map<ForumDTO>(foundForum);
+        }
+        
+        /*
+         * Let an user unfollow a forum
+         * Returns unfollowed forum
+         */
+        public async Task<ForumDTO> UnfollowForum(Guid forumId, string token)
+        {
+            // Get user from token
+            var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
+
+            // Find forum in database
+            var foundForum = await _forumSqlRepository.Get(forumId);
+
+            // Check if forum exists
+            if (foundForum == null)
+                // Throw an exception if forum has not been found
+                throw new NotFoundException("Forum");
+            
+            // Check if user has not already unfollowed the forum
+            if (foundForum.FollowedByUsers.All(c => c.UserId != userFromToken.Id))
+                // Throw CannotPerformActionException when user has already unfollowed this forum
+                throw new CannotPerformActionException("You have already unfollowed this forum");
+            
+            // Remove forum forum user follow in database
+            foundForum.FollowedByUsers.Remove(new UserFollowingForum{User = userFromToken, Forum = foundForum});
+            await this._forumSqlRepository.Update(foundForum);
+
+            // Remove relation in graph database
+            await _forumNeoRepository.RemoveRelation(userFromToken, NEORelation.FOLLOWED, foundForum);
+            
+            // Return mapped found forum
+            return _mapper.Map<ForumDTO>(foundForum);
         }
 
         /**

@@ -26,5 +26,6 @@ namespace Domain.Entities.SQL.User
         public virtual ICollection<Forum> CreatedForums { get; set; }
         public virtual ICollection<UserFollowingForum> FollowingForums { get; set; }
         public virtual ICollection<UserHiddenForum> HiddenForums { get; set; }
+        public virtual ICollection<UserRole> Roles { get; set; }
     }
 }

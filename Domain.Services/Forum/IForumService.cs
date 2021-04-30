@@ -11,6 +11,8 @@ namespace Domain.Services.Forum
         Task<ForumDTO> CreateForum(CreateForumInput createForum, string token);
         Task<ForumDTO> UpdateForum(Guid forumId, Entities.SQL.Forums.Forum post, string token);
         Task<ForumDTO> DeleteForum(Guid postId, string token);
+        Task<ForumDTO> FollowForum(Guid forumId, string token);
+        Task<ForumDTO> UnfollowForum(Guid forumId, string token);
         Task<IEnumerable<ForumDTO>> GetForums();
     }
 }

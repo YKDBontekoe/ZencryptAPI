@@ -60,6 +60,11 @@ namespace Infrastructure.EF.EntityMapping
                 .WithOne(c => c.User)
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
+            
+            entityBuilder.HasMany(u => u.Roles)
+                .WithOne(c => c.User)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
