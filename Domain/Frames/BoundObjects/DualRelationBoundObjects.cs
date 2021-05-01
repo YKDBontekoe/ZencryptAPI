@@ -1,5 +1,4 @@
 ﻿using Domain.Entities;
-using Domain.Enums;
 using Domain.Enums.Neo;
 
 namespace Domain.Frames.BoundObjects

@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using Domain.Entities.SQL.Forums;
+using Domain.Entities.SQL.User.Links;
 
 namespace Domain.Entities.SQL.User
 {
     public class User : BaseEntity
     {
-        public string? UserName { get; set; }   
+        public string? UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
@@ -22,5 +23,9 @@ namespace Domain.Entities.SQL.User
 
         public virtual ICollection<UserDislikedPost> DislikedPosts { get; set; }
         public virtual ICollection<UserDislikedComment> DislikedComments { get; set; }
+        public virtual ICollection<Forum> CreatedForums { get; set; }
+        public virtual ICollection<UserFollowingForum> FollowingForums { get; set; }
+        public virtual ICollection<UserHiddenForum> HiddenForums { get; set; }
+        public virtual ICollection<UserRole> Roles { get; set; }
     }
 }

@@ -1,8 +1,7 @@
-﻿using Infrastructure.EF.EntityMapping;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using Domain.Entities.SQL.Forums;
+﻿using Domain.Entities.SQL.Forums;
 using Domain.Entities.SQL.User;
+using Infrastructure.EF.EntityMapping;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.EF.Context
 {
@@ -19,6 +18,7 @@ namespace Infrastructure.EF.Context
             UserMap.CreateMap(modelBuilder.Entity<User>());
             PostMap.CreateMap(modelBuilder.Entity<Post>());
             CommentMap.CreateMap(modelBuilder.Entity<Comment>());
+            ForumMap.CreateMap(modelBuilder.Entity<Forum>());
         }
     }
 }

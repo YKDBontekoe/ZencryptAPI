@@ -53,6 +53,64 @@ namespace Infrastructure.EF.Migrations
                     b.ToTable("Comment");
                 });
 
+            modelBuilder.Entity("Domain.Entities.SQL.Forums.Forum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ForumTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ForumTypeId");
+
+                    b.ToTable("Forum");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.Forums.ForumType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForumType");
+                });
+
             modelBuilder.Entity("Domain.Entities.SQL.Forums.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -64,6 +122,9 @@ namespace Infrastructure.EF.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -80,9 +141,285 @@ namespace Infrastructure.EF.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ForumId");
+
                     b.HasIndex("UploadedUserId");
 
                     b.ToTable("Post");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserDislikedComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDislikedComment");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserDislikedPost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDislikedPost");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserFollowingForum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ForumId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserFollowingForum");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserHiddenForum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ForumId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ForumId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserHiddenForum");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserLikedComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLikedComment");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserLikedPost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLikedPost");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRole");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserViewedPost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserViewedPost");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("Domain.Entities.SQL.User.User", b =>
@@ -126,156 +463,6 @@ namespace Infrastructure.EF.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserDislikedComment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CommentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserDislikedComment");
-                });
-
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserDislikedPost", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserDislikedPost");
-                });
-
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserLikedComment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CommentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserLikedComment");
-                });
-
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserLikedPost", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserLikedPost");
-                });
-
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserViewedPost", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserViewedPost");
-                });
-
             modelBuilder.Entity("Domain.Entities.SQL.Forums.Comment", b =>
                 {
                     b.HasOne("Domain.Entities.SQL.Forums.Post", "OriginPost")
@@ -295,18 +482,45 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("UploadedUser");
                 });
 
+            modelBuilder.Entity("Domain.Entities.SQL.Forums.Forum", b =>
+                {
+                    b.HasOne("Domain.Entities.SQL.User.User", "CreatedByUser")
+                        .WithMany("CreatedForums")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SQL.Forums.ForumType", "ForumType")
+                        .WithMany("Forums")
+                        .HasForeignKey("ForumTypeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("ForumType");
+                });
+
             modelBuilder.Entity("Domain.Entities.SQL.Forums.Post", b =>
                 {
+                    b.HasOne("Domain.Entities.SQL.Forums.Forum", "Forum")
+                        .WithMany("Posts")
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.SQL.User.User", "UploadedByUser")
                         .WithMany("UploadedPosts")
                         .HasForeignKey("UploadedUserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.Navigation("Forum");
+
                     b.Navigation("UploadedByUser");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserDislikedComment", b =>
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserDislikedComment", b =>
                 {
                     b.HasOne("Domain.Entities.SQL.Forums.Comment", "Comment")
                         .WithMany("DislikedByUsers")
@@ -325,7 +539,7 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserDislikedPost", b =>
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserDislikedPost", b =>
                 {
                     b.HasOne("Domain.Entities.SQL.Forums.Post", "Post")
                         .WithMany("DislikedByUsers")
@@ -344,7 +558,45 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserLikedComment", b =>
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserFollowingForum", b =>
+                {
+                    b.HasOne("Domain.Entities.SQL.Forums.Forum", "Forum")
+                        .WithMany("FollowedByUsers")
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SQL.User.User", "User")
+                        .WithMany("FollowingForums")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Forum");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserHiddenForum", b =>
+                {
+                    b.HasOne("Domain.Entities.SQL.Forums.Forum", "Forum")
+                        .WithMany("HiddenByUsers")
+                        .HasForeignKey("ForumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SQL.User.User", "User")
+                        .WithMany("HiddenForums")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Forum");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserLikedComment", b =>
                 {
                     b.HasOne("Domain.Entities.SQL.Forums.Comment", "Comment")
                         .WithMany("LikedByUsers")
@@ -363,7 +615,7 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserLikedPost", b =>
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserLikedPost", b =>
                 {
                     b.HasOne("Domain.Entities.SQL.Forums.Post", "Post")
                         .WithMany("LikedByUsers")
@@ -382,7 +634,26 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SQL.User.UserViewedPost", b =>
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserRole", b =>
+                {
+                    b.HasOne("Domain.Entities.SQL.User.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SQL.User.User", "User")
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.User.Links.UserViewedPost", b =>
                 {
                     b.HasOne("Domain.Entities.SQL.Forums.Post", "Post")
                         .WithMany("ViewedByUsers")
@@ -408,6 +679,20 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("LikedByUsers");
                 });
 
+            modelBuilder.Entity("Domain.Entities.SQL.Forums.Forum", b =>
+                {
+                    b.Navigation("FollowedByUsers");
+
+                    b.Navigation("HiddenByUsers");
+
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SQL.Forums.ForumType", b =>
+                {
+                    b.Navigation("Forums");
+                });
+
             modelBuilder.Entity("Domain.Entities.SQL.Forums.Post", b =>
                 {
                     b.Navigation("Comments");
@@ -419,15 +704,28 @@ namespace Infrastructure.EF.Migrations
                     b.Navigation("ViewedByUsers");
                 });
 
+            modelBuilder.Entity("Domain.Entities.SQL.User.Role", b =>
+                {
+                    b.Navigation("UserRoles");
+                });
+
             modelBuilder.Entity("Domain.Entities.SQL.User.User", b =>
                 {
+                    b.Navigation("CreatedForums");
+
                     b.Navigation("DislikedComments");
 
                     b.Navigation("DislikedPosts");
 
+                    b.Navigation("FollowingForums");
+
+                    b.Navigation("HiddenForums");
+
                     b.Navigation("LikedComments");
 
                     b.Navigation("LikedPosts");
+
+                    b.Navigation("Roles");
 
                     b.Navigation("UploadedComments");
 

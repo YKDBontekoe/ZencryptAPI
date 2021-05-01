@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.DataTransferObjects.User;
+using Domain.DataTransferObjects.User.Input;
 using Domain.Exceptions;
 using Domain.Services.Repositories;
 using Domain.Services.User;
@@ -16,13 +16,16 @@ namespace Services.User
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfiguration _config;
-        private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
-        private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
 
         private readonly string _jwtKey = Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ??
-                                         throw new InvalidOperationException("No jwt token provided!");
+                                          throw new InvalidOperationException("No jwt token provided!");
 
-        public AuthenticationService(IConfiguration config, ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository, INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
+        private readonly INeoRepository<Domain.Entities.SQL.User.User> _userNeoRepository;
+        private readonly ISQLRepository<Domain.Entities.SQL.User.User> _userSqlRepository;
+
+        public AuthenticationService(IConfiguration config,
+            ISQLRepository<Domain.Entities.SQL.User.User> userSqlRepository,
+            INeoRepository<Domain.Entities.SQL.User.User> userNeoRepository)
         {
             _config = config;
             _userSqlRepository = userSqlRepository;
@@ -127,7 +130,6 @@ namespace Services.User
                 new[]
                 {
                     new Claim("ID", user.Id.ToString())
-
                 },
                 expires: DateTime.Now.AddMinutes(120),
                 signingCredentials: credentials);
@@ -140,7 +142,7 @@ namespace Services.User
          * Authenticates given user in database
          * Returns user result from database
          */
-        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(BaseUserDTO user)
+        public async Task<Domain.Entities.SQL.User.User> AuthenticateUser(LoginUserInput user)
         {
             // Find user in database by email
             var dbUsers = await _userSqlRepository.Filter(u => u.Email == user.Email);
@@ -167,22 +169,29 @@ namespace Services.User
          * Insert user into database
          * Returns inserted user from database
          */
-        public async Task<Domain.Entities.SQL.User.User> InsertUser(Domain.Entities.SQL.User.User user)
+        public async Task<Domain.Entities.SQL.User.User> InsertUser(RegisterUserInput user)
         {
             // Find user by email in database
             var emailUserResult = await _userSqlRepository.Filter(u => u.Email == user.Email);
 
             // Check if user exists in database
             if (emailUserResult.Any())
-            {
                 // Throws exception if user is already in database
                 throw new DuplicateException(user.Email);
-            }
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
+            var dbUser = new Domain.Entities.SQL.User.User
+            {
+                Email = user.Email,
+                Password = user.Password,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName
+            };
+
             // Insert user into SQL database
-            await _userSqlRepository.Insert(user);
+            await _userSqlRepository.Insert(dbUser);
 
             // Saves user to database
             await _userSqlRepository.SaveChanges();

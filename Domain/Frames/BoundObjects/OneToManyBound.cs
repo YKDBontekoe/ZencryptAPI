@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Domain.Entities;
-using Domain.Entities.Neo;
-using Domain.Enums;
 using Domain.Enums.Neo;
 
 namespace Domain.Frames.BoundObjects
@@ -14,7 +8,6 @@ namespace Domain.Frames.BoundObjects
     {
         public TA ObjectA { get; set; }
         public NEORelation RelationShip { get; set; }
-        public IEnumerable<TB> ObjectList { get; set; } 
+        public IEnumerable<TB> ObjectList { get; set; }
     }
-
 }

@@ -6,6 +6,6 @@ namespace Domain.Frames.BoundObjects
     {
         public TA ObjectA { get; set; }
         public TB ObjectB { get; set; }
-        public TC ObjectC { get; set; } 
+        public TC ObjectC { get; set; }
     }
 }

@@ -4,7 +4,11 @@
     "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:53740",
-      "sslPort": 44333
+      "sslPort": 44333,
+      "ASPNETCORE_ENVIRONMENT": "Development",
+      "ASPNETCORE_JWT_TOKEN": "DMJFnaafhgnmqFaagvd",
+      "ASPNETCORE_NEO_CONNECTION_STRING": "http://192.168.1.117:7474/",
+      "ASPNETCORE_SQL_CONNECTION_STRING": "Data Source=192.168.1.117,1433;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;"
     }
   },
   "$schema": "http://json.schemastore.org/launchsettings.json",
@@ -29,11 +33,11 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/playground",
       "environmentVariables": {
         "ASPNETCORE_JWT_TOKEN": "DMJFnaafhgnmqFaagvd",
-        "ASPNETCORE_NEO_CONNECTION_STRING": "http://ykdproxy.live:30008/",
-        "ASPNETCORE_SQL_CONNECTION_STRING": "Data Source=ykdproxy.live,30004;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;",
+        "ASPNETCORE_NEO_CONNECTION_STRING": "http://192.168.1.117:7474/",
+        "ASPNETCORE_SQL_CONNECTION_STRING": "Data Source=192.168.1.117,1433;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;",
         "ASPNETCORE_URLS": "https://+:443;http://+:80",
         "ASPNETCORE_HTTPS_PORT": "44360"
       },

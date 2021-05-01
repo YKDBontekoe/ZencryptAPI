@@ -12,7 +12,7 @@ namespace Infrastructure.EF.Repositories
     public class SQLRepository<T> : ISQLRepository<T> where T : BaseEntity
     {
         private readonly DbSet<T> _entities;
-        private readonly EntityContext _entityContext; 
+        private readonly EntityContext _entityContext;
 
         public SQLRepository(EntityContext entityContext)
         {
