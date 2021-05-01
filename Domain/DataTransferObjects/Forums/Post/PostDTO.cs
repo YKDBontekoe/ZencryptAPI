@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Domain.DataTransferObjects.Forums.Comment;
+using Domain.DataTransferObjects.Forums.Forum;
 using Domain.DataTransferObjects.User;
 
 namespace Domain.DataTransferObjects.Forums.Post
@@ -14,6 +15,7 @@ namespace Domain.DataTransferObjects.Forums.Post
         public int Likes { get; set; }
         public int Dislikes { get; set; }
         public int Views { get; set; }
+        public ForumDTO Forum { get; set; }
         public InfoUserDTO UploadedByUser { get; set; }
         public IEnumerable<CommentDTO> Comments { get; set; }
     }

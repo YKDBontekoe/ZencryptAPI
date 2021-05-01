@@ -47,7 +47,34 @@ namespace ZenCryptAPI.Graphql
         {
             return await forumService.CreateForum(createForum, TokenHandler.GetToken(contextAccessor));
         }
-
+        
+        [Authorize]
+        public async Task<ForumDTO> FollowForum([Service] IForumService forumService,
+            [Service] IHttpContextAccessor contextAccessor, UserInteractForumInput interactForum)
+        {
+            return await forumService.FollowForum(interactForum.ForumId, TokenHandler.GetToken(contextAccessor));
+        }
+        
+        [Authorize]
+        public async Task<ForumDTO> UnFollowForum([Service] IForumService forumService,
+            [Service] IHttpContextAccessor contextAccessor, UserInteractForumInput interactForum)
+        {
+            return await forumService.UnfollowForum(interactForum.ForumId, TokenHandler.GetToken(contextAccessor));
+        }
+        
+        [Authorize]
+        public async Task<ForumDTO> HideForum([Service] IForumService forumService,
+            [Service] IHttpContextAccessor contextAccessor, UserInteractForumInput interactForum)
+        {
+            return await forumService.HideForum(interactForum.ForumId, TokenHandler.GetToken(contextAccessor));
+        }
+        
+        [Authorize]
+        public async Task<ForumDTO> UnHideForum([Service] IForumService forumService,
+            [Service] IHttpContextAccessor contextAccessor, UserInteractForumInput interactForum)
+        {
+            return await forumService.UnHideForum(interactForum.ForumId, TokenHandler.GetToken(contextAccessor));
+        }
         // ------------------- Post ---------------------
         [Authorize]
         public async Task<PostDTO> CreatePost([Service] IPostService postService,

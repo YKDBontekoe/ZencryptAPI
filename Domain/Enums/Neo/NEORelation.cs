@@ -10,6 +10,7 @@
         COMMENTED,
         COMMENT,
         CREATED,
-        HIDDEN
+        HIDDEN,
+        POSTED_AT
     }
 }

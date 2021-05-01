@@ -252,13 +252,26 @@ namespace Services.Forum
          * Get all forums from database
          * Returns all forums from database
          */
-        public async Task<IEnumerable<ForumDTO>> GetForums()
+        public async Task<IEnumerable<ForumDTO>> GetForums()   
         {
             // Get all forums from database
-            var foundPosts = await _forumSqlRepository.GetAll();
+            var foundForums = await _forumSqlRepository.GetAll();
 
             // Returns found forums
-            return _mapper.ProjectTo<ForumDTO>(foundPosts as IQueryable);
+            return _mapper.ProjectTo<ForumDTO>(foundForums as IQueryable);
+        }
+
+        /*
+         * Get a single forums from database
+         * Returns a single forum from database
+         */
+        public async Task<ForumDTO> GetForum(Guid forumId)
+        {
+            // Get single forum from database
+            var foundForum = await _forumSqlRepository.Get(forumId);
+
+            // Returns found forums
+            return _mapper.Map<ForumDTO>(foundForum);
         }
     }
 }

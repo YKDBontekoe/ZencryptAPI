@@ -17,5 +17,6 @@ namespace Domain.Services.Forum
         Task<ForumDTO> UnHideForum(Guid forumId, string token); 
         
         Task<IEnumerable<ForumDTO>> GetForums();
+        Task<ForumDTO> GetForum(Guid forumId);
     }
 }

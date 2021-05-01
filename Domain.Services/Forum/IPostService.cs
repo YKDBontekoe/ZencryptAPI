@@ -12,7 +12,7 @@ namespace Domain.Services.Forum
         Task<PostDTO> CreatePost(CreatePostInput createPost, string token);
         Task<PostDTO> UpdatePost(Guid postId, Post post, string token);
         Task<PostDTO> DeletePost(Guid postId, string token);
-        Task<IEnumerable<PostDTO>> GetPosts();
+        Task<IEnumerable<PostDTO>> GetPosts(Guid? forumId);
 
         Task<PostDTO> UserLikePost(Guid postId, string token);
         Task<PostDTO> UserDislikePost(Guid postId, string token);

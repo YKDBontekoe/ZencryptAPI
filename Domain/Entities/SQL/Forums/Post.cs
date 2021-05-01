@@ -9,11 +9,13 @@ namespace Domain.Entities.SQL.Forums
         public string Title { get; set; }
         public string? Description { get; set; }
         public Guid UploadedUserId { get; set; }
+        public Guid ForumId { get; set; }
 
         public virtual ICollection<UserLikedPost> LikedByUsers { get; set; }
         public virtual ICollection<UserDislikedPost> DislikedByUsers { get; set; }
         public virtual ICollection<UserViewedPost> ViewedByUsers { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual User.User UploadedByUser { get; set; }
+        public virtual Forum Forum { get; set; }
     }
 }

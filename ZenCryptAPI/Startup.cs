@@ -37,7 +37,7 @@ namespace ZenCryptAPI
         {
             services.AddDbContext<EntityContext>(options =>
                 options.UseSqlServer(
-                        Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ?? throw new InvalidOperationException("No sql connection string provided!"))
+                        Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING")?? "Data Source=192.168.1.117,1433;Initial Catalog=DevPersonal;User Id=sa;Password=Reepje171;" ?? throw new InvalidOperationException("No sql connection string provided!"))
                     .UseLazyLoadingProxies());
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,12 +52,12 @@ namespace ZenCryptAPI
                         ValidIssuer = Configuration["Jwt:Issuer"],
                         ValidAudience = Configuration["Jwt:Issuer"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                            Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ?? throw new InvalidOperationException("No jwt token provided!")))
+                            Environment.GetEnvironmentVariable("ASPNETCORE_JWT_TOKEN") ?? "DMJFnaafhgnmqFaagvd" ?? throw new InvalidOperationException("No jwt token provided!")))
                     };
                 });
 
             var neo4JClient =
-                new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ?? throw new InvalidOperationException("No neo4j connection string provided!")))
+                new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ?? "http://192.168.1.117:7474/" ?? throw new InvalidOperationException("No neo4j connection string provided!")))
                 {
                     JsonContractResolver = new CamelCasePropertyNamesContractResolver()
                 };
