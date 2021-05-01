@@ -38,6 +38,7 @@ namespace ZenCryptAPI
             services.AddDbContext<EntityContext>(options =>
                 options.UseSqlServer(
                         Environment.GetEnvironmentVariable("ASPNETCORE_SQL_CONNECTION_STRING") ??
+                        
                         throw new InvalidOperationException("No sql connection string provided!"))
                     .UseLazyLoadingProxies());
 
@@ -60,6 +61,7 @@ namespace ZenCryptAPI
 
             var neo4JClient =
                 new GraphClient(new Uri(Environment.GetEnvironmentVariable("ASPNETCORE_NEO_CONNECTION_STRING") ??
+                                        
                                         throw new InvalidOperationException("No neo4j connection string provided!")))
                 {
                     JsonContractResolver = new CamelCasePropertyNamesContractResolver()
