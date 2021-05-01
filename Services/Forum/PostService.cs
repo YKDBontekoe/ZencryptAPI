@@ -18,14 +18,18 @@ namespace Services.Forum
     public class PostService : IPostService
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly ISQLRepository<Domain.Entities.SQL.Forums.Forum> _forumSqlRepository;
         private readonly IMapper _mapper;
         private readonly INeoRepository<Post> _neoRepository;
         private readonly ISQLRepository<Post> _postIsqlRepository;
         private readonly ISQLRepository<UserDislikedPost> _userDislikedIsqlRepository;
         private readonly ISQLRepository<UserLikedPost> _userLikedIsqlRepository;
-        private readonly ISQLRepository<Domain.Entities.SQL.Forums.Forum> _forumSqlRepository;
 
-        public PostService(IAuthenticationService authenticationService, IMapper mapper, INeoRepository<Post> neoRepository, ISQLRepository<Post> postIsqlRepository, ISQLRepository<UserDislikedPost> userDislikedIsqlRepository, ISQLRepository<UserLikedPost> userLikedIsqlRepository, ISQLRepository<Domain.Entities.SQL.Forums.Forum> forumSqlRepository)
+        public PostService(IAuthenticationService authenticationService, IMapper mapper,
+            INeoRepository<Post> neoRepository, ISQLRepository<Post> postIsqlRepository,
+            ISQLRepository<UserDislikedPost> userDislikedIsqlRepository,
+            ISQLRepository<UserLikedPost> userLikedIsqlRepository,
+            ISQLRepository<Domain.Entities.SQL.Forums.Forum> forumSqlRepository)
         {
             _authenticationService = authenticationService;
             _mapper = mapper;
@@ -43,15 +47,15 @@ namespace Services.Forum
         public async Task<PostDTO> CreatePost(CreatePostInput createPost, string token)
         {
             var userFromToken = await TokenHandler.TokenValidationAndReturnUser(_authenticationService, token);
-            
+
             // Find forum in database
             var foundForum = await _forumSqlRepository.Get(createPost.ForumId);
-            
+
             // Check if forum exists
             if (foundForum == null)
                 // Throw an exception if forum has not been found
                 throw new NotFoundException("Forum");
-            
+
             // Add user to post
             var post = new Post
             {
@@ -70,7 +74,7 @@ namespace Services.Forum
             // Insert relation into graph database
             await _neoRepository.CreateRelation(userFromToken,
                 NEORelation.POSTED, insertedPost);
-            
+
             await _neoRepository.CreateRelation(insertedPost,
                 NEORelation.POSTED_AT, foundForum);
 
@@ -145,7 +149,8 @@ namespace Services.Forum
             var foundPosts = await _postIsqlRepository.GetAll();
 
             // Returns found posts
-            return _mapper.ProjectTo<PostDTO>((forumId.HasValue ? foundPosts.Where(c => c.ForumId == forumId) : foundPosts) as IQueryable);
+            return _mapper.ProjectTo<PostDTO>(
+                (forumId.HasValue ? foundPosts.Where(c => c.ForumId == forumId) : foundPosts) as IQueryable);
         }
 
         /**

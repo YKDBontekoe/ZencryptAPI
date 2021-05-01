@@ -115,7 +115,7 @@ namespace Services.Forum
             // returns the deleted forum
             return _mapper.Map<ForumDTO>(deletedPost);
         }
-        
+
         /*
          * Let an user follow a forum
          * Returns followed forum
@@ -132,23 +132,23 @@ namespace Services.Forum
             if (foundForum == null)
                 // Throw an exception if forum has not been found
                 throw new NotFoundException("Forum");
-            
+
             // Check if user is not already following the forum
             if (foundForum.FollowedByUsers.Any(c => c.UserId == userFromToken.Id))
                 // Throw CannotPerformActionException when user has already followed this forum
                 throw new CannotPerformActionException("You have already followed this forum");
-            
+
             // Add forum to user follow in database
-            foundForum.FollowedByUsers.Add(new UserFollowingForum{User = userFromToken, Forum = foundForum});
-            await this._forumSqlRepository.Update(foundForum);
+            foundForum.FollowedByUsers.Add(new UserFollowingForum {User = userFromToken, Forum = foundForum});
+            await _forumSqlRepository.Update(foundForum);
 
             // Add relation in graph database
             await _forumNeoRepository.CreateRelation(userFromToken, NEORelation.FOLLOWED, foundForum);
-            
+
             // Return mapped found forum
             return _mapper.Map<ForumDTO>(foundForum);
         }
-        
+
         /*
          * Let an user unfollow a forum
          * Returns unfollowed forum
@@ -165,19 +165,19 @@ namespace Services.Forum
             if (foundForum == null)
                 // Throw an exception if forum has not been found
                 throw new NotFoundException("Forum");
-            
+
             // Check if user has not already unfollowed the forum
             if (foundForum.FollowedByUsers.All(c => c.UserId != userFromToken.Id))
                 // Throw CannotPerformActionException when user has already unfollowed this forum
                 throw new CannotPerformActionException("You have already unfollowed this forum");
-            
+
             // Remove forum forum user follow in database
-            foundForum.FollowedByUsers.Remove(new UserFollowingForum{User = userFromToken, Forum = foundForum});
-            await this._forumSqlRepository.Update(foundForum);
+            foundForum.FollowedByUsers.Remove(new UserFollowingForum {User = userFromToken, Forum = foundForum});
+            await _forumSqlRepository.Update(foundForum);
 
             // Remove relation in graph database
             await _forumNeoRepository.RemoveRelation(userFromToken, NEORelation.FOLLOWED, foundForum);
-            
+
             // Return mapped found forum
             return _mapper.Map<ForumDTO>(foundForum);
         }
@@ -198,23 +198,23 @@ namespace Services.Forum
             if (foundForum == null)
                 // Throw an exception if forum has not been found
                 throw new NotFoundException("Forum");
-            
+
             // Check if user has not already hidden the forum
             if (foundForum.HiddenByUsers.Any(c => c.UserId == userFromToken.Id))
                 // Throw CannotPerformActionException when user has already hidden this forum
                 throw new CannotPerformActionException("You have already hidden this forum");
-            
+
             // Add hidden entry to database
-            foundForum.HiddenByUsers.Add(new UserHiddenForum{User = userFromToken, Forum = foundForum});
-            await this._forumSqlRepository.Update(foundForum);
+            foundForum.HiddenByUsers.Add(new UserHiddenForum {User = userFromToken, Forum = foundForum});
+            await _forumSqlRepository.Update(foundForum);
 
             // Create relation in graph database
             await _forumNeoRepository.CreateRelation(userFromToken, NEORelation.HIDDEN, foundForum);
-            
+
             // Return mapped found forum
             return _mapper.Map<ForumDTO>(foundForum);
         }
-        
+
         /*
          * Let an user un- hide a forum
          * Returns unhidden forum
@@ -231,19 +231,19 @@ namespace Services.Forum
             if (foundForum == null)
                 // Throw an exception if forum has not been found
                 throw new NotFoundException("Forum");
-            
+
             // Check if user has not already un- hidden the forum
             if (foundForum.HiddenByUsers.All(c => c.UserId != userFromToken.Id))
                 // Throw CannotPerformActionException when user has already hidden this forum
                 throw new CannotPerformActionException("You have already un- hidden this forum");
-            
+
             // Remove hidden entry to database
-            foundForum.HiddenByUsers.Remove(new UserHiddenForum{User = userFromToken, Forum = foundForum});
-            await this._forumSqlRepository.Update(foundForum);
+            foundForum.HiddenByUsers.Remove(new UserHiddenForum {User = userFromToken, Forum = foundForum});
+            await _forumSqlRepository.Update(foundForum);
 
             // Remove relation in graph database
             await _forumNeoRepository.RemoveRelation(userFromToken, NEORelation.HIDDEN, foundForum);
-            
+
             // Return mapped found forum
             return _mapper.Map<ForumDTO>(foundForum);
         }
@@ -252,7 +252,7 @@ namespace Services.Forum
          * Get all forums from database
          * Returns all forums from database
          */
-        public async Task<IEnumerable<ForumDTO>> GetForums()   
+        public async Task<IEnumerable<ForumDTO>> GetForums()
         {
             // Get all forums from database
             var foundForums = await _forumSqlRepository.GetAll();

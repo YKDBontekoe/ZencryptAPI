@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.DataTransferObjects.Forums.Forum;
 using Domain.DataTransferObjects.Forums.Post;
-using Domain.DataTransferObjects.Forums.Post.Input;
 using Domain.Services.Forum;
 using HotChocolate;
 using HotChocolate.Data;

@@ -13,7 +13,7 @@ namespace Infrastructure.EF.EntityMapping
             entityBuilder.HasOne(p => p.ForumType)
                 .WithMany(c => c.Forums)
                 .OnDelete(DeleteBehavior.NoAction);
-            
+
             entityBuilder.HasMany(p => p.Posts)
                 .WithOne(c => c.Forum)
                 .HasForeignKey(c => c.ForumId)

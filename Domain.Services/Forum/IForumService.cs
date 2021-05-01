@@ -14,8 +14,8 @@ namespace Domain.Services.Forum
         Task<ForumDTO> FollowForum(Guid forumId, string token);
         Task<ForumDTO> UnfollowForum(Guid forumId, string token);
         Task<ForumDTO> HideForum(Guid forumId, string token);
-        Task<ForumDTO> UnHideForum(Guid forumId, string token); 
-        
+        Task<ForumDTO> UnHideForum(Guid forumId, string token);
+
         Task<IEnumerable<ForumDTO>> GetForums();
         Task<ForumDTO> GetForum(Guid forumId);
     }
